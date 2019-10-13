@@ -1,0 +1,53 @@
+{
+  "id": "de.buschjaeger.freeathome",
+  "version": "0.0.1",
+  "compatibility": ">=2.5.2",
+  "sdk": 2,
+  "name": {
+    "en": "Bush Jeager Free@Home"
+  },
+  "description": {
+    "en": "Adds support for Busch Jaeger's Free@home system and its connected devices to Homey"
+  },
+  "category": [
+    "lights"
+  ],
+  "permissions": [],
+  "images": {
+    "large": "/assets/images/large.png",
+    "small": "/assets/images/small.png"
+  },
+  "author": {
+    "name": "Julius van Dis",
+    "email": "vandis.j@gmail.com"
+  },
+  "drivers": [
+    {
+      "id": "switch",
+      "name": {
+        "en": "Switch"
+      },
+      "class": "light",
+      "capabilities": [
+        "onoff"
+      ],
+      "images": {
+        "large": "/drivers/switch/assets/images/large.png",
+        "small": "/drivers/switch/assets/images/small.png"
+      },
+      "pair": [
+        {
+          "id": "list_devices",
+          "template": "list_devices",
+          "navigation": {
+            "next": "add_devices"
+          }
+        },
+        {
+          "id": "add_devices",
+          "template": "add_devices"
+        }
+      ]
+    }
+  ]
+}

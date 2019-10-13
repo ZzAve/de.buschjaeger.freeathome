@@ -1,0 +1,27 @@
+{
+  "name": "de.buschjaeger.freeathome",
+  "version": "0.0.1",
+  "description": "Adds support for Busch Jaeger's Free@home system and its connected devices to Homey",
+  "main": "app.js",
+  "dependencies": {
+    "fs-extra": "^8.1.0",
+    "node-fetch": "^2.6.0",
+    "semver": "^6.3.0"
+  },
+  "devDependencies": {
+  },
+  "scripts": {
+    "run": "homeyConfig compose && athom project --run",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ZzAve/de.buschjaeger.freeathome.git"
+  },
+  "author": "Julius van Dis",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ZzAve/de.buschjaeger.freeathome/issues"
+  },
+  "homepage": "https://github.com/ZzAve/de.buschjaeger.freeathome#readme"
+}
