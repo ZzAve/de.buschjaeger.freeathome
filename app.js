@@ -1,5 +1,4 @@
-
-const Homey = require('homey');
+const Homey = require("homey");
 
 class FreeAtHome extends Homey.App {
   onInit() {
