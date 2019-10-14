@@ -9,6 +9,8 @@
     "semver": "^6.3.0"
   },
   "devDependencies": {
+    "cz-conventional-changelog": "^3.0.2",
+    "husky": "^3.0.9"
   },
   "scripts": {
     "run": "homeyConfig compose && athom project --run",
@@ -23,5 +25,15 @@
   "bugs": {
     "url": "https://github.com/ZzAve/de.buschjaeger.freeathome/issues"
   },
-  "homepage": "https://github.com/ZzAve/de.buschjaeger.freeathome#readme"
+  "homepage": "https://github.com/ZzAve/de.buschjaeger.freeathome#readme",
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  },
+  "husky": {
+    "hooks": {
+      "prepare-commit-msg": "exec < /dev/tty && git cz --hook || true"
+    }
+  }
 }
