@@ -18,7 +18,8 @@
     "prettier-eslint": "^9.0.0"
   },
   "scripts": {
-    "run": "homeyConfig compose && athom project --run",
+    "homey:run": "npm ci --only-production && athom app run && npm i",
+    "homey:install": "npm ci --only-production && athom app install && npm i",
     "lint": "eslint .",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
