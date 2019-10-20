@@ -33,7 +33,7 @@ $ athom app run
 
 Final result should look like this:
 
-![Connections](./landscape.png)
+![Connections](docs/landscape.png)
 
 
 ### Scope

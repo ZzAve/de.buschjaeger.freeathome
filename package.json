@@ -6,20 +6,33 @@
   "dependencies": {
     "fs-extra": "^8.1.0",
     "node-fetch": "^2.6.0",
+    "promise.prototype.finally": "^3.1.1",
+    "freeathome-api": "github:zzave/freeathome-api#feature/error-handling",
     "semver": "^6.3.0"
   },
   "devDependencies": {
+    "@types/prop-types": "^15.7.3",
+    "athom-cli": "^2.1.104",
     "cz-conventional-changelog": "^3.0.2",
     "eslint": "^6.5.1",
     "eslint-config-prettier": "^6.4.0",
     "eslint-plugin-prettier": "^3.1.1",
     "husky": "^3.0.9",
     "prettier": "^1.18.2",
-    "prettier-eslint": "^9.0.0"
+    "prettier-eslint": "^9.0.0",
+    "prop-types": "latest",
+    "ts-loader": "^6.2.0",
+    "typescript": "^3.6.4",
+    "webpack": "^4.41.2",
+    "webpack-cli": "^3.3.9"
   },
   "scripts": {
-    "homey:run": "npm ci --only-production && athom app run && npm i",
-    "homey:install": "npm ci --only-production && athom app install && npm i",
+    "prehomey2": "npm run build && sh prepare.sh && cd dist && npm ci --production && cd ../",
+    "prehomey": "npm run build && sh prepare.sh && cd dist && npm i --production && cd ../",
+    "build": "tsc",
+    "yolo": "athom app run -p dist",
+    "homey:run": "npm run prehomey && athom app run -p dist ",
+    "homey:install": "npm run prehomey && athom app install -p dist ",
     "lint": "eslint .",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

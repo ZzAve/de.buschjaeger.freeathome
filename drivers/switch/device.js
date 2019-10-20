@@ -1,9 +1,9 @@
-const Homey = require("homey");
+const Homey = require("../../lib/HomeyExtension");
 const assert = require("assert");
 const fetch = require("node-fetch");
 
 // const device_id = 'ABB700D5B3E7'
-const FreeAtHomeApi = require("../../lib/freeathome");
+// const FreeAtHomeApi = require("../../lib/freeathome");
 
 class SwitchDevice extends Homey.Device {
   // this method is called when the Device is inited
@@ -16,10 +16,7 @@ class SwitchDevice extends Homey.Device {
     this.log("Data ", this.getData());
     // this.log(this)
 
-    this.api = new FreeAtHomeApi();
-    this.api
-      .on("__log", (...args) => this.log("[API]", ...args))
-      .on("__error", (...args) => this.error("[API]", ...args));
+    this.api = Homey.app.getSysAp();
     // Set values
     const { deviceId: deviceId, channel } = this.getData();
     this.deviceId = deviceId;
@@ -55,8 +52,8 @@ class SwitchDevice extends Homey.Device {
         +value
       );
       this.log("Response :", response);
-      this.log("Body: ", await response.text());
-      assert(response.status === 200, "Response tatus was not 200");
+      // this.log("Body: ", await response.text());
+      // assert(response.status === 200, "Response tatus was not 200");
       this.setCapabilityValue("onoff", value).catch(this.error);
     } catch (error) {
       this.log(`Could net set value of ${this.getName()} to ${value},`, error);

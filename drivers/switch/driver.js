@@ -1,13 +1,10 @@
-const Homey = require("homey");
-const FreeAtHomeApi = require("../../lib/freeathome");
+const Homey = require("../../lib/HomeyExtension");
 
 class SwitchDriver extends Homey.Driver {
   onInit() {
     this.log("SwitchDriver has been inited");
-    this.api = new FreeAtHomeApi();
-    this.api
-      .on("__log", (...args) => this.log("[API2]", ...args))
-      .on("__error", (...args) => this.error("[API2]", ...args));
+    this.api = this.api = Homey.app.getSysAp();
+
     this.devicesPromise = Promise.resolve([]);
   }
 
@@ -41,7 +38,7 @@ class SwitchDriver extends Homey.Driver {
 
   async discoverDevicesByType(type) {
     this.log(`Getting all devices of type ${type}`);
-    return this.api.getDevices(type);
+    return await this.api.getDevices(type);
   }
 }
 

@@ -25,8 +25,18 @@
 
             <div class="field row">
                 <label for="api-host">Free@home-api host</label>
-                <input id="api-host" type="text" value="" placeholder="http://192.168.2.200:8000" />
+                <input id="api-host" type="text" value="" placeholder="http://192.168.2.200" />
             </div>
+
+            <div class="field row">
+                <label for="api-username">Free@home-api username</label>
+                <input id="api-username" type="text" value="" placeholder="username" />
+            </div>
+            <div class="field row">
+                <label for="api-password">Free@home-api password</label>
+                <input id="api-password" type="password" value=""  />
+            </div>
+
 
         </fieldset>
 
@@ -41,7 +51,8 @@
             Homey.ready();
 
             var apiHostElement = document.getElementById('api-host');
-            // var passwordElement = document.getElementById('password');
+            var apiUsernameElement = document.getElementById('api-username');
+            var apiPasswordElement = document.getElementById('api-password');
             var saveElement = document.getElementById('save');
 
             Homey.get('apiHost', function( err, apiHost ) {
@@ -49,11 +60,29 @@
 			   apiHostElement.value = apiHost;
 	        });
 
-	        saveElement.addEventListener('click', function(e) {
+            Homey.get('apiUsername', function( err, apiUserName ) {
+              if( err ) return Homey.alert( err );
+              apiUsernameElement.value = apiUserName;
+            });
+
+
+            Homey.get('apiPassword', function( err, apiPassword ) {
+              if( err ) return Homey.alert( err );
+              apiPasswordElement.value = apiPassword;
+            });
+
+
+          saveElement.addEventListener('click', function(e) {
 
 	            Homey.set('apiHost', apiHostElement.value, function( err ){
 		            if( err ) return Homey.alert( err );
 	            });
+                Homey.set('apiUsername', apiUsernameElement.value, function( err ){
+                  if( err ) return Homey.alert( err );
+                });
+                Homey.set('apiPassword', apiPasswordElement.value, function( err ){
+                  if( err ) return Homey.alert( err );
+                });
 	        });
         }
         </script>
