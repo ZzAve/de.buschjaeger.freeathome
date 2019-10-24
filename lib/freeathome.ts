@@ -46,6 +46,7 @@ const dimmableDeviceIds = ["1017", "1019"];
 export class FreeAtHomeApi {
   private _connected: boolean;
   private systemAccessPoint: SystemAccessPoint;
+
   constructor(config: ClientConfiguration) {
     this._connected = false;
     let sysApConfig = {
@@ -64,8 +65,8 @@ export class FreeAtHomeApi {
       await this.systemAccessPoint.connect();
       this._connected = true;
     } catch (e) {
-      this._connected = true
-      this.stop()
+      this._connected = true;
+      this.stop();
       console.error("Could not connect to SysAp: ", e);
       this._connected = false;
     }
@@ -88,20 +89,20 @@ export class FreeAtHomeApi {
    * @param message
    */
   async broadcastMessage(message: any) {
-    if (message.type === "error"){
-      await this.stop()
+    if (message.type === "error") {
+      await this.stop();
     }
 
     //ignore updates for now
   }
 
   internalize(externalDevice, channel) {
-    console.log(`internalizing (channel ${channel}`, externalDevice);
+    console.log(`Internalizing (channel ${channel}`, externalDevice);
 
-    console.log(externalDevice);
-    console.log(externalDevice.channels);
-    console.log(externalDevice.channels[channel]);
-    console.log(externalDevice.channels[channel]["displayName"]);
+    // console.log(externalDevice);
+    // console.log(externalDevice.channels);
+    // console.log(externalDevice.channels[channel]);
+    // console.log(externalDevice.channels[channel]["displayName"]);
     return {
       name: externalDevice.channels[channel]["displayName"],
       // 'name': `${externalDevice.serialNumber}-${channel}`,

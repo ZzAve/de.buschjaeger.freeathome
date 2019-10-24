@@ -13,6 +13,8 @@
   "devDependencies": {
     "@types/prop-types": "^15.7.3",
     "athom-cli": "^2.1.104",
+    "clean-webpack-plugin": "^3.0.0",
+    "copy-webpack-plugin": "^5.0.4",
     "cz-conventional-changelog": "^3.0.2",
     "eslint": "^6.5.1",
     "eslint-config-prettier": "^6.4.0",
@@ -30,6 +32,8 @@
     "prehomey2": "npm run build && sh prepare.sh && cd dist && npm ci --production && cd ../",
     "prehomey": "npm run build && sh prepare.sh && cd dist && npm i --production && cd ../",
     "build": "tsc",
+    "build:dev": "webpack --mode=development",
+    "build:pro": "webpack --mode=production",
     "yolo": "athom app run -p dist",
     "homey:run": "npm run prehomey && athom app run -p dist ",
     "homey:install": "npm run prehomey && athom app install -p dist ",

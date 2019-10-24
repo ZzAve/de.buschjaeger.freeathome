@@ -1,4 +1,4 @@
-const Homey = require("../../lib/HomeyExtension");
+const Homey = require("homey");
 
 class SwitchDriver extends Homey.Driver {
   onInit() {

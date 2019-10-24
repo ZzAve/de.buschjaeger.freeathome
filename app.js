@@ -1,6 +1,6 @@
 require("promise.prototype.finally").shim();
-const Homey = require("./lib/HomeyExtension");
-const {FreeAtHomeApi} = require("./lib/freeathome");
+const Homey = require("homey");
+const { FreeAtHomeApi } = require("./lib/freeathome");
 
 class FreeAtHome extends Homey.App {
   async onInit() {
@@ -23,7 +23,7 @@ class FreeAtHome extends Homey.App {
       hostname: Homey.ManagerSettings.get(`apiHost`)
     };
 
-    this.api = new FreeAtHomeApi(config)
+    this.api = new FreeAtHomeApi(config);
 
     this.on("uncaughtException", err => {
       this.error(err, "uncought Exception");

@@ -1,4 +1,4 @@
-const Homey = require("../../lib/HomeyExtension");
+const Homey = require("homey");
 const assert = require("assert");
 const fetch = require("node-fetch");
 
