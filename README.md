@@ -4,6 +4,36 @@
 
 Adds support for Busch Jaeger's Free@home system and its connected devices to Homey
 
+
+
+### Scope
+Currently, this app supports a device discovery for a limited set of actuators:
+
+- Some "Sensor/ Schaltaktor 2/2-fach" are supported (deviceId's: 1010)
+- Some "Sensor/ Schaltaktor 1/1-fach" are supported (deviceId's: 1017, 100C, 2039)
+- Some "Sensor/ Schaltaktor 2/1-fach" are supported (deviceId's: 1019)
+    
+with the capability of turning the actor 'on' and 'off'.
+
+For each device the name will be used as it is configured in the SysAp.
+
+
+
+## Future plans
+I have quite a list of things that I want to do (not necessarily in order):
+
+- ~~Internalize the freeathome-api to eliminate the need for an 'external' dependency~~
+- Add support for dimmers, blinds, temperature sensors, and, if possible scenes.
+
+- ~~Make use of Typescript interface to have a little more insight in the classes and methods inside 'homey',
+without having to leave the IDE. It also results in less trial and error.~~
+- ~~Add linting and autoformatting because I can~~
+- Publish to the app store
+- Add locales for both English and Dutch
+
+
+## Initial scope (POC)
+
 ## Scope of POC 
 
 ### Rationale
@@ -35,27 +65,3 @@ Final result should look like this:
 
 ![Connections](docs/landscape.png)
 
-
-### Scope
-Currently, this app supports a device discovery for a limited set of actuators:
-
-- All "Sensor/ Schaltaktor 2/2-fach" are supported
-- All "Sensor/ Schaltaktor 1/1-fach" are supported
-- All "Sensor/ Schaltaktor 2/1-fach" are supported
-    
-with the capability of turning the actor 'on' and 'off'.
-
-For each device the name will be used as it is configured in the SysAp.
-
-
-
-## Future plans
-I have quite a list of things that I want to do (not necessarily in order):
-
-- Internalize the freeathome-api to eliminate the need for an 'external' dependency
-- Add support for dimmers, blinds, temperature sensors, and, if possible scenes.
-
-- Make use of Typescript interface to have a little more insight in the classes and methods inside 'homey',
-without having to leave the IDE. It also results in less trial and error.
-- Add linting and autoformatting because I can
-- Publish to the app store
