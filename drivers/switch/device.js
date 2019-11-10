@@ -1,20 +1,11 @@
 const Homey = require("homey");
-const assert = require("assert");
-const fetch = require("node-fetch");
-
-// const device_id = 'ABB700D5B3E7'
-// const FreeAtHomeApi = require("../../lib/freeathome");
 
 class SwitchDevice extends Homey.Device {
   // this method is called when the Device is inited
   onInit() {
     this.setUnavailable(Homey.__("loading"));
 
-    this.log("Device init");
-    this.log("Name:", this.getName());
-    this.log("Class:", this.getClass());
-    this.log("Data ", this.getData());
-    // this.log(this)
+    this.log(`Device init: ${this.getName()}`);
 
     this.api = Homey.app.getSysAp();
     // Set values
@@ -42,25 +33,16 @@ class SwitchDevice extends Homey.Device {
     this.log(`Received onCapalbilityOnoff with ${value} and ${opts}`);
     this.log("opts: ", opts);
     try {
-      // this.log('Trying to map uri')
-      // const uri = this.api.mapToUri(value);
-      // this.log(`Calling ${uri}`);
-
       const response = await this.api.setSwitchState(
         this.deviceId,
         this.deviceChannel,
         +value
       );
       this.log("Response :", response);
-      // this.log("Body: ", await response.text());
-      // assert(response.status === 200, "Response tatus was not 200");
       this.setCapabilityValue("onoff", value).catch(this.error);
     } catch (error) {
       this.log(`Could net set value of ${this.getName()} to ${value},`, error);
     }
-
-    // or, throw an error
-    // throw new Error('Switching the device failed!');
   }
 
   /**

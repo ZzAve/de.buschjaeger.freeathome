@@ -1,6 +1,7 @@
 "use strict";
 
 import { ClientConfiguration, SystemAccessPoint } from "freeathome-api";
+import { EventEmitter } from "events";
 
 const values = {
   on: 1,
@@ -43,11 +44,12 @@ const deviceMapping = {
 const switchesDeviceIds = ["1010", "100C", "2039"];
 const dimmableDeviceIds = ["1017", "1019"];
 
-export class FreeAtHomeApi {
+export class FreeAtHomeApi extends EventEmitter {
   private _connected: boolean;
   private systemAccessPoint: SystemAccessPoint;
 
   constructor(config: ClientConfiguration) {
+    super();
     this._connected = false;
     let sysApConfig = {
       hostname: "",
@@ -65,16 +67,15 @@ export class FreeAtHomeApi {
       await this.systemAccessPoint.connect();
       this._connected = true;
     } catch (e) {
-      this._connected = true;
-      this.stop();
+      this.stop(true);
       console.error("Could not connect to SysAp: ", e);
-      this._connected = false;
+      this.emit("disconnected", e);
     }
   }
 
-  async stop() {
+  async stop(force?: Boolean) {
     console.log("Stopping free@home API");
-    if (this._connected) {
+    if (force===true || this._connected) {
       await this.systemAccessPoint.disconnect();
       this._connected = false;
     }
@@ -91,6 +92,7 @@ export class FreeAtHomeApi {
   async broadcastMessage(message: any) {
     if (message.type === "error") {
       await this.stop();
+      this.emit("disconnected", message)
     }
 
     //ignore updates for now

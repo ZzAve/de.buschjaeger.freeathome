@@ -2,88 +2,114 @@
 <html>
     <head>
 
-    	<!-- The '/homey.js' script must be included in your settings view to work -->
-	    <script type="text/javascript" src="/homey.js" data-origin="settings"></script>
-
+        <link rel="stylesheet" type="text/css" href="styles.css" />
+        <script type="text/javascript" src="/homey.js" data-origin="settings"></script>
+        <script type="text/javascript" src="/manager/webserver/assets/js/jquery.js"></script>
+        <script type="text/javascript" src="settings.js" data-origin="settings"></script>
     </head>
     <body>
 
-        <h1 data-i18n="settings.title">
-        	<!--
-        	This field will automatically be filled by a translated string with key 'settings.title'.
-        	Read more about translations at Internationalization.
-        	-->
-        </h1>
-        <p data-i18n="settings.subtitle">
-        	<!--
-        	This field will also be translated
-			-->
-        </p>
+        <div id="app">
+            <h1 data-i18n="settings.title">Settings</h1>
 
-        <fieldset>
-            <legend>My Settings</legend>
-
-            <div class="field row">
-                <label for="api-host">Free@home-api host</label>
-                <input id="api-host" type="text" value="" placeholder="http://192.168.2.200" />
+            <div class="rTable tabs">
+                <div class="rTableRow">
+                    <div id="tabb1" class="tab tab-inactive" onclick="showTab(1)" data-i18n="settings.tab1.title">Settings</div>
+                    <div id="tabb2" class="tab tab-inactive" onclick="showTab(2)" data-i18n="settings.tab2.title">Log</div>
+                </div>
             </div>
+            <div class="tab-content">
+                <div style="height:8px" class="panel"></div>
+                <div id="tab1" class="panel" style="display: none;">
 
-            <div class="field row">
-                <label for="api-username">Free@home-api username</label>
-                <input id="api-username" type="text" value="" placeholder="username" />
+                    <fieldset>
+                        <legend data-i18n="settings.tab1.header">My Settings</legend>
+
+                        <div class="field row">
+                            <label for="api-host">Free@home-api host</label>
+                            <input id="api-host" type="text" value="" placeholder="http://192.168.2.200" />
+                        </div>
+
+                        <div class="field row">
+                            <label for="api-username">Free@home-api username</label>
+                            <input id="api-username" type="text" value="" placeholder="username" />
+                        </div>
+                        <div class="field row">
+                            <label for="api-password">Free@home-api password</label>
+                            <input id="api-password" type="password" value=""  />
+                        </div>
+                    </fieldset>
+
+                    <button id="save" class="right">Save changes</button>
+                </div>
+                <div id="tab2" class="panel" style="display: none;">
+                    <div class="setting">
+                        <label class="settings-item-description" data-i18n="settings.tab2.deletelogs"></label>
+                        <button id="deleteButton" class="btn" onclick="deleteLogs()" data-i18n="settings.tab2.deletelogs">Delete</button>
+                    </div>
+                    <div id="loglines" class="instructions"></div>
+                </div>
             </div>
-            <div class="field row">
-                <label for="api-password">Free@home-api password</label>
-                <input id="api-password" type="password" value=""  />
-            </div>
+        </div>
 
-
-        </fieldset>
-
-        <button id="save" class="right">Save changes</button>
 
         <script type="text/javascript">
 
         // a method named 'onHomeyReady' must be present in your code
         function onHomeyReady( Homey ){
-
+            window.HomeyAPI = Homey;
 	        // Tell Homey we're ready to be displayed
             Homey.ready();
 
-            var apiHostElement = document.getElementById('api-host');
-            var apiUsernameElement = document.getElementById('api-username');
-            var apiPasswordElement = document.getElementById('api-password');
-            var saveElement = document.getElementById('save');
+            showTab(1);
 
-            Homey.get('apiHost', function( err, apiHost ) {
-	           if( err ) return Homey.alert( err );
-			   apiHostElement.value = apiHost;
-	        });
 
-            Homey.get('apiUsername', function( err, apiUserName ) {
+            const apiHostElement = document.getElementById('api-host');
+            const apiUsernameElement = document.getElementById('api-username');
+            const apiPasswordElement = document.getElementById('api-password');
+
+            Homey.get('sysap', function( err, data){
               if( err ) return Homey.alert( err );
-              apiUsernameElement.value = apiUserName;
+              apiHostElement.value = data.host;
+              apiUsernameElement.value = data.username;
+              apiPasswordElement.value = data.password;
             });
 
+            const saveElement = document.getElementById('save');
+            saveElement.addEventListener('click', function(e) {
+                const sysapData = {
+                  host: apiHostElement.value,
+                  username: apiUsernameElement.value,
+                  password: apiPasswordElement.value
+                };
 
-            Homey.get('apiPassword', function( err, apiPassword ) {
-              if( err ) return Homey.alert( err );
-              apiPasswordElement.value = apiPassword;
-            });
-
-
-          saveElement.addEventListener('click', function(e) {
-
-	            Homey.set('apiHost', apiHostElement.value, function( err ){
-		            if( err ) return Homey.alert( err );
-	            });
-                Homey.set('apiUsername', apiUsernameElement.value, function( err ){
-                  if( err ) return Homey.alert( err );
-                });
-                Homey.set('apiPassword', apiPasswordElement.value, function( err ){
+                Homey.set('sysap', sysapData, function( err ){
                   if( err ) return Homey.alert( err );
                 });
 	        });
+        }
+
+
+        function refreshLog(){
+          HomeyAPI.api('GET', 'logs/', function(err, result) {
+            if(!err) {
+              document.getElementById('log').innerHTML = "";
+              for (let i = (result.length - 1); i >= 0; i--) {
+                document.getElementById('log').innerHTML += JSON.stringify(result[i]).replace(/\"/g, "").replace(/\\n/g, "");
+                document.getElementById('log').innerHTML += "\n"; // "<br />";
+              }
+            }
+          });
+        }
+        function deleteLog(){
+          HomeyAPI.api('DELETE', 'logs/', function(err, result) {
+            if (!err) {
+              document.getElementById('log').innerHTML = "";
+            }else{
+              alert(err);
+            }
+            refreshLog();
+          });
         }
         </script>
 

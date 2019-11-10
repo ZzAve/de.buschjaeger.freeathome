@@ -1,6 +1,12 @@
 {
   "settings": {
-    "title": "My Settings Page",
-    "subtitle": "Please provide freeathom-api URL"
+    "title": "Busch Jaeger Free@Home Settings Page",
+    "tab1": {
+      "title": "Settings",
+      "header": "Please provide your SysAp settings here"
+    },
+    "tab2": {
+      "title": "Logs"
+    }
   }
 }

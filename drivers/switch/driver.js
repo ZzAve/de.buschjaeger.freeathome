@@ -10,7 +10,6 @@ class SwitchDriver extends Homey.Driver {
 
   onPair(socket) {
     this.log("Called on pair with ", socket);
-    // TODO: discovery of devices
     this.devicesPromise = this.discoverDevicesByType("switch");
 
     socket.on("list_devices", async (data, callback) => {
@@ -27,13 +26,6 @@ class SwitchDriver extends Homey.Driver {
       // or fire a callback with Error to show that instead
       // callback( new Error('Something bad has occured!') );
     });
-  }
-
-  // this is the easiest method to overwrite, when only the template 'Drivers-Pairing-System-Views' is being used.
-  async onPairListDevices(data, callback) {
-    this.log(`Called onPairListDevices with ${data}`);
-
-    callback(null, await this.devicesPromise);
   }
 
   async discoverDevicesByType(type) {

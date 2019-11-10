@@ -100,6 +100,7 @@ const appConfig = (env, argv) => {
     target: "node",
     entry: {
       app: "./app.js",
+      api: "./api.js",
       "drivers/switch/driver": "./drivers/switch/driver.js",
       "drivers/switch/device": "./drivers/switch/device.js"
     },
