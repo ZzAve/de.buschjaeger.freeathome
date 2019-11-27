@@ -4,11 +4,12 @@
   "description": "Adds support for Busch Jaeger's Free@home system and its connected devices to Homey",
   "main": "app.js",
   "dependencies": {
-    "fs-extra": "^8.1.0",
-    "node-fetch": "^2.6.0",
-    "promise.prototype.finally": "^3.1.1",
     "fixture-stdout": "^0.2.1",
-    "freeathome-api": "github:zzave/freeathome-api#feature/error-handling"
+    "freeathome-api": "github:henry-spanka/freeathome-api#master",
+    "fs-extra": "^8.1.0",
+    "homey": "0.1.0-beta.13",
+    "node-fetch": "^2.6.0",
+    "promise.prototype.finally": "^3.1.1"
   },
   "devDependencies": {
     "semver": "^6.3.0",
