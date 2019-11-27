@@ -25,12 +25,14 @@ class FreeAtHome extends Homey.App {
         this.log('memwarn!');
       });
 
-    await this.startSysAp();
 
+    this.api = new FreeAtHomeApi();
 
     this.api.addListener("disconnected", (msg) => {
       Homey.ManagerSettings.set("apiErrorMessage", msg)
     });
+
+    await this.startSysAp();
 
     // Restart connection to SysAp on settings change
     Homey.ManagerSettings.on("set", async () => {
@@ -41,14 +43,13 @@ class FreeAtHome extends Homey.App {
   }
 
   async startSysAp() {
-    const config = {
-      username: Homey.ManagerSettings.get(`apiUsername`),
-      password: Homey.ManagerSettings.get(`apiPassword`),
-      hostname: Homey.ManagerSettings.get(`apiHost`)
-    };
+    const conf = Homey.ManagerSettings.get(`sysap`) || {};
 
-    this.api = new FreeAtHomeApi(config);
-    await this.api.start();
+    await this.api.start({
+      username: conf.username,
+      password: conf.password,
+      hostname: conf.host
+    });
     this.log("Started the freeathomme api")
   }
 

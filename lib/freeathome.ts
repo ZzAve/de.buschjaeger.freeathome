@@ -48,20 +48,20 @@ export class FreeAtHomeApi extends EventEmitter {
   private _connected: boolean;
   private systemAccessPoint: SystemAccessPoint;
 
-  constructor(config: ClientConfiguration) {
+  constructor(config?: ClientConfiguration) {
     super();
     this._connected = false;
-    let sysApConfig = {
-      hostname: "",
-      username: "",
-      password: "",
-      ...config
-    };
-    this.systemAccessPoint = new SystemAccessPoint(sysApConfig, this, null);
+    this.systemAccessPoint = this.safeConfig(config);
   }
 
-  async start() {
+
+
+  async start(config?: ClientConfiguration) {
     console.log("Starting free@home API");
+    if (config) {
+      console.log("(re)Setting config");
+      this.systemAccessPoint = this.safeConfig(config);
+    }
 
     try {
       await this.systemAccessPoint.connect();
@@ -75,7 +75,7 @@ export class FreeAtHomeApi extends EventEmitter {
 
   async stop(force?: Boolean) {
     console.log("Stopping free@home API");
-    if (force===true || this._connected) {
+    if (force === true || this._connected) {
       await this.systemAccessPoint.disconnect();
       this._connected = false;
     }
@@ -92,13 +92,27 @@ export class FreeAtHomeApi extends EventEmitter {
   async broadcastMessage(message: any) {
     if (message.type === "error") {
       await this.stop();
-      this.emit("disconnected", message)
+      this.emit("disconnected", message);
     }
 
     //ignore updates for now
   }
 
-  internalize(externalDevice, channel) {
+  private safeConfig(config: ClientConfiguration) {
+    let sysApConfig = {
+      hostname: "",
+      username: "",
+      password: "",
+      ...config
+    };
+
+    console.log(
+        `Setting up SystemAccessPoint connection to: ${sysApConfig.hostname} with user ${sysApConfig.username}`
+    );
+    return new SystemAccessPoint(sysApConfig, this, null);
+  }
+
+  private internalize(externalDevice, channel) {
     console.log(`Internalizing (channel ${channel}`, externalDevice);
 
     // console.log(externalDevice);
