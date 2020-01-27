@@ -7,6 +7,7 @@ class FreeAtHome extends Homey.App {
   async onInit() {
     this.log(`${Homey.app.manifest.id} is running...`);
     this.logger = new Logger();	// [logName] [, logLength]
+    this.apiConnected = false
 
     process.on("uncaughtException", err => {
       this.error(err, "uncought Exception");
@@ -27,11 +28,6 @@ class FreeAtHome extends Homey.App {
 
 
     this.api = new FreeAtHomeApi();
-
-    this.api.addListener("disconnected", (msg) => {
-      Homey.ManagerSettings.set("apiErrorMessage", msg)
-    });
-
     await this.startSysAp();
 
     // Restart connection to SysAp on settings change
@@ -50,11 +46,19 @@ class FreeAtHome extends Homey.App {
       password: conf.password,
       hostname: conf.host
     });
+    this.apiConnected = true;
+    this.emit(`api_connected`, this.api);
+
     this.log("Started the freeathomme api")
   }
 
-  getSysAp() {
-    return this.api;
+  async getSysAp() {
+    if (this.api != null && this.apiConnected){
+      return this.api
+    }
+
+    return new Promise(resolve =>
+      this.once("api_connected", resolve) );
   }
 
   // ============================================================

@@ -4,6 +4,7 @@
 
 Adds support for Busch Jaeger's Free@home system and its connected devices to Homey
 
+This is not an official application, but a hobby project. Tread lightly
 
 
 ### Scope
@@ -17,22 +18,33 @@ with the capability of turning the actor 'on' and 'off'.
 
 For each device the name will be used as it is configured in the SysAp.
 
+## Using functionId from SysAp
+There is an MR in freeathome-api to expose a channels functionId. This allows to not have to parse deviceIds and 
+having to update those every few months. I'm planning to start using this soon. 
 
+### Polling
+
+On startup, a `device` registers itself with Freeathome, which manages connection to the access point.
+Every update from SysAp (all devices, including the ones used by consumer) is processed in real time and fed to the device is applicable
+
+To have a fallback, every `60 seconds` (static for now) a full state sync is done (syncing Homey to state in Sysap (lead))
 
 ## Future plans
 I have quite a list of things that I want to do (not necessarily in order):
 
 - ~~Internalize the freeathome-api to eliminate the need for an 'external' dependency~~
 - Add support for dimmers, blinds, temperature sensors, and, if possible scenes.
-
+    - Use functionId to determine device channel capabilities
 - ~~Make use of Typescript interface to have a little more insight in the classes and methods inside 'homey',
 without having to leave the IDE. It also results in less trial and error.~~
 - ~~Add linting and autoformatting because I can~~
 - Publish to the app store
 - Add locales for both English and Dutch
-
-
-## Initial scope (POC)
+- Polling interval in app settings w/ sensible default (5 min?) Updates are realltime so should be just a sync every now and then
+- Add device specific settings, such as energy consumption
+- Register with freeAtHome sysAp should have a retry function, both from device, and internally (max retries, retry with backoff)
+    
+# Initial scope (POC)
 
 ## Scope of POC 
 
