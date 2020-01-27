@@ -5,18 +5,16 @@
   "main": "app.js",
   "dependencies": {
     "fixture-stdout": "^0.2.1",
-    "freeathome-api": "github:henry-spanka/freeathome-api#master",
+    "freeathome-api": "github:henry-spanka/freeathome-api#feature-abb-structure",
     "fs-extra": "^8.1.0",
-    "homey": "0.1.0-beta.13",
     "node-fetch": "^2.6.0",
     "promise.prototype.finally": "^3.1.1"
   },
   "devDependencies": {
-    "semver": "^6.3.0",
     "@types/prop-types": "^15.7.3",
     "athom-cli": "^2.1.104",
     "clean-webpack-plugin": "^3.0.0",
-    "copy-webpack-plugin": "^5.0.4",
+    "copy-webpack-plugin": "^5.1.1",
     "cz-conventional-changelog": "^3.0.2",
     "eslint": "^6.6.0",
     "eslint-config-prettier": "^6.4.0",
@@ -24,10 +22,12 @@
     "husky": "^3.0.9",
     "prettier": "^1.18.2",
     "prettier-eslint": "^9.0.0",
-    "prop-types": "latest",
+    "prop-types": "^15.7.2",
+    "semver": "^6.3.0",
+    "serialize-javascript": ">=2.1.1",
     "ts-loader": "^6.2.0",
     "typescript": "^3.6.4",
-    "webpack": "^4.41.2",
+    "webpack": "^4.41.5",
     "webpack-cli": "^3.3.9"
   },
   "scripts": {

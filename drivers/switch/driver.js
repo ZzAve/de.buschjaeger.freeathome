@@ -1,9 +1,9 @@
 const Homey = require("homey");
 
 class SwitchDriver extends Homey.Driver {
-  onInit() {
+  async onInit() {
     this.log("SwitchDriver has been inited");
-    this.api = this.api = Homey.app.getSysAp();
+    this.api = await Homey.app.getSysAp();
 
     this.devicesPromise = Promise.resolve([]);
   }
