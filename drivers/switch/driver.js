@@ -1,24 +1,27 @@
 const Homey = require("homey");
 
+
+const SWITCH_FUNCTION_ID = "7";
+
 class SwitchDriver extends Homey.Driver {
   async onInit() {
     this.log("SwitchDriver has been inited");
     this.api = await Homey.app.getSysAp();
 
     this.devicesPromise = Promise.resolve([]);
+    this.functionId = SWITCH_FUNCTION_ID
   }
 
   onPair(socket) {
     this.log("Called on pair with ", socket);
-    this.devicesPromise = this.discoverDevicesByType("switch");
+    this.devicesPromise = this.discoverDevicesByFunction(this.functionId);
 
     socket.on("list_devices", async (data, callback) => {
       // emit when devices are still being searched
       socket.emit("list_devices", []);
 
       // fire the callback when searching is done
-      const devices = await this.devicesPromise;
-      callback(null, devices);
+      callback(null, await this.devicesPromise);
 
       // when no devices are found, return an empty array
       // callback( null, [] );
@@ -28,9 +31,10 @@ class SwitchDriver extends Homey.Driver {
     });
   }
 
-  async discoverDevicesByType(type) {
-    this.log(`Getting all devices of type ${type}`);
-    return await this.api.getDevices(type);
+  async discoverDevicesByFunction(functionId){
+    this.log(`Getting all devices of functionId ${functionId}`);
+    return await this.api.getDevicesByFunctionId(functionId);
+
   }
 }
 
