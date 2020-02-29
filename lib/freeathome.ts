@@ -158,10 +158,6 @@ export class FreeAtHomeApi implements Subscriber{
   private internalize(externalDevice, channel) {
     console.log(`Internalizing (channel ${channel}`, externalDevice);
 
-    // console.log(externalDevice);
-    // console.log(externalDevice.channels);
-    // console.log(externalDevice.channels[channel]);
-    // console.log(externalDevice.channels[channel]["displayName"]);
     return {
       name: externalDevice.channels[channel]["displayName"],
       // 'name': `${externalDevice.serialNumber}-${channel}`,
@@ -182,43 +178,23 @@ export class FreeAtHomeApi implements Subscriber{
    * @param type 'switch', 'dimmable'
    * @returns {Promise<{data: {channel: string, id: string, deviceId: string}, name: *}[]>}
    */
-  async getDevices(type) {
-    let compatibleDeviceIds;
-    switch (type) {
-      case "switch":
-        compatibleDeviceIds = switchesDeviceIds;
-        break;
-      case "dimmable":
-        compatibleDeviceIds = dimmableDeviceIds;
-        break;
-      default:
-        throw "Unsupported DeviceType";
-    }
-
+  async getDevicesByFunctionId(functionId) {
     const allDevices: Map<string, any> = await this.getAllDevices();
 
-    console.log(allDevices);
-
     let devices = [];
-    // Filter by type
-    const switches = Object.values(allDevices).filter(device =>
-      compatibleDeviceIds.includes(device.deviceId)
-    );
-
     // Extract from each channel
-    switches.forEach(device => {
-      console.log(device);
-      deviceMapping[device.deviceId].channels.forEach(channel => {
-        if (!!device.channels[channel]) {
-          devices.push(this.internalize(device, channel));
+    Object.values(allDevices).forEach(device => {
+      Object.entries(device.channels).forEach(([key, channel]) => {
+        // @ts-ignore
+        if (channel.functionId === functionId) {
+          devices.push(this.internalize(device, key));
         }
       });
     });
 
-    console.log("Found devices of type ", type, devices);
+    console.log(`Found ${devices.length} devices with functionId ${functionId}`);
     return devices;
   }
-
   /**
    * TODO : error handling
    * TODO: short lived cache
