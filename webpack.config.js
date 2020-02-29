@@ -102,7 +102,9 @@ const appConfig = (env, argv) => {
       app: "./app.js",
       api: "./api.js",
       "drivers/switch/driver": "./drivers/switch/driver.js",
-      "drivers/switch/device": "./drivers/switch/device.js"
+      "drivers/switch/device": "./drivers/switch/device.js",
+      "drivers/dimmer/driver": "./drivers/dimmer/driver.js",
+      "drivers/dimmer/device": "./drivers/dimmer/device.js"
     },
     module: {
       rules: [

@@ -14,7 +14,8 @@ const values = {
 };
 
 const capabilityMapping = {
-  onoff: "idp0000"
+  onoff: "idp0000",
+  dim: "idp0002"
 };
 
 const deviceMapping = {
@@ -227,7 +228,11 @@ export class FreeAtHomeApi implements Subscriber{
    * @returns {Promise<void>}
    */
   async setSwitchState(deviceId, channel, value) {
-    return await this.set(deviceId, channel, capabilityMapping.onoff, value);
+    return await this.setDeviceState(deviceId, channel, capabilityMapping.onoff, value);
+  }
+  
+  async setDimState(deviceId, channel, value){
+    return await this.setDeviceState(deviceId, channel, capabilityMapping.dim, value)
   }
 
   /**
@@ -238,7 +243,7 @@ export class FreeAtHomeApi implements Subscriber{
    * @param value
    * @returns {Promise<void>}
    */
-  async set(deviceId, channel, dataPoint, value) {
+  async setDeviceState(deviceId, channel, dataPoint, value) {
     console.log(
       `Setting (device, channel, datapoint, value): ${deviceId}, ${channel}, ${dataPoint}, ${value}`
     );
