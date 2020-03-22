@@ -38,7 +38,13 @@ class FreeAtHomeDriver extends Homey.Driver {
 
   private async discoverDevicesByFunction(functionId) {
     this.log(`Getting all devices of functionId ${functionId}`);
-    return await this.api.getDevicesByFunctionId(functionId);
+    return await this.api.getDevicesByFunctionId(functionId).then(devices =>
+      // TODO: Fix custom icons for devices. (switches are pretty multipurpose afaik :))
+      devices.map(it => {
+        it.icon = "/icons/noun_Light_1754118.svg";
+        return it;
+      })
+    );
   }
 }
 
