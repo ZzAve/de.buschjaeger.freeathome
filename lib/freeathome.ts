@@ -96,7 +96,7 @@ export class FreeAtHomeApi implements Subscriber{
     try {
       await this.systemAccessPoint.connect();
       this._connected = true;
-      await delay(5000);
+      await delay(8000);
       await this._onPoll();
     } catch (e) {
       this.stop(true);

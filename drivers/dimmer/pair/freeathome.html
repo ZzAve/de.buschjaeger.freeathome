@@ -1,0 +1,31 @@
+<script>
+  Homey.showLoadingOverlay();
+  Homey.setTitle(Homey.__("pair.group.title"));
+
+  $('#hy-overlay-loading-message').html(Homey.__("pair.group.loading"));
+
+  Homey.emit('freeathome.devicesPrepared', null, function (error, group) {
+    if (error) {
+      Homey.alert(error);
+      console.log(error);
+      return;
+    }
+
+    console.log(group)
+    group.devices.forEach((value, key) => {
+      console.log("Adding:", value)
+      Homey.addDevice(value, (error, result) => {
+        if (error) {
+          Homey.alert(error);
+          console.log(error);
+        } else {
+          console.log(result)
+        }
+      })
+    });
+
+    Homey.emit('freeathome.devicesFinalised', null, function (error, result) {
+      Homey.done();
+    });
+  });
+</script>

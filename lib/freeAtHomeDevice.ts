@@ -24,12 +24,12 @@ class FreeAtHomeDevice extends Homey.Device {
         // Set device state
         // Enable states
 
-        this.log("Fetching 'api' ...");
-        this.api = await this.getApi();
-        this.log("... Fetched 'api'");
+        // this.log("Fetching 'api' ...");
+        // this.api = await this.getApi();
+        // this.log("... Fetched 'api'");
 
         try {
-            const {deviceState: initialDeviceState} = await this.api.registerDevice({
+            const {deviceState: initialDeviceState} = await (await this.getApi()).registerDevice({
                 serialNumber: this.deviceId,
                 channel: this.deviceChannel,
                 onPoll: this.onPoll.bind(this),
@@ -96,7 +96,11 @@ class FreeAtHomeDevice extends Homey.Device {
     }
 
     async getApi() {
-        return await Homey.app.getSysAp();
+        this.log("Fetching 'api' ...");
+        // this.api = await this.getApi();
+        let sysApApi = await Homey.app.getSysAp();
+        this.log("... Fetched 'api'");
+        return sysApApi;
     }
 }
 
