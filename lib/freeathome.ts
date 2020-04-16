@@ -207,11 +207,11 @@ export class FreeAtHomeApi implements Subscriber{
       try {
         const response = await this.systemAccessPoint.getDeviceData();
         // console.log(response);
-        this.state = response;
+        // this.state = response;
         return response;
       } catch (e) {
         console.error("Error getting device data", e);
-        this.state = {}; // TODO Should we clear state on error?
+        // this.state = {}; // TODO Should we clear state on error?
         return {};
       }
     } else {
@@ -391,10 +391,11 @@ export class FreeAtHomeApi implements Subscriber{
    **/
   async registerDevice({ serialNumber, channel, onPoll, onUpdate, onError }) {
     console.log(`Registering ${serialNumber} ${channel} `);
-    if (!this.state) throw new FreeAtHomeError("missing_state");
+    // if (!this.state) throw new FreeAtHomeError("missing_state");
+    let state = await this.getAllDevices();
 
     //TODO go over this
-    const device = this.state[serialNumber];
+    const device = state[serialNumber];
     const deviceChannel = device.channels[channel];
     if (!deviceChannel) throw new FreeAtHomeError("invalid_device_channel");
 

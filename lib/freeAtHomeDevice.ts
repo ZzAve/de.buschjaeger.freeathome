@@ -1,3 +1,5 @@
+import {delay} from "./util";
+
 const {Homey } = require("./util");
 
 const capabilityMapping = {
@@ -95,12 +97,22 @@ class FreeAtHomeDevice extends Homey.Device {
         this.setUnavailable(err).catch(this.error);
     }
 
-    async getApi() {
-        this.log("Fetching 'api' ...");
-        // this.api = await this.getApi();
-        let sysApApi = await Homey.app.getSysAp();
-        this.log("... Fetched 'api'");
-        return sysApApi;
+    async getApi(retry = true) {
+        try {
+            this.log(`Tryin to get a hold of sysAP API (retry ${retry})`);
+            return await Homey.app.getSysAp();
+        } catch( e) {
+            this.error("Could not get get FreeAtHome API reference.", e);
+
+            if (retry) {
+                this.log(" Trying to connect to API once more");
+                await delay(5000);
+                return this.getApi(false)
+            } else {
+                throw e
+            }
+        }
+
     }
 }
 
