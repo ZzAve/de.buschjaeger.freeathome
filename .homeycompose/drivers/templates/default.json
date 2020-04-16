@@ -1,0 +1,23 @@
+{
+  "pair": [
+    {
+      "id": "list_devices",
+      "template": "list_devices",
+      "navigation": {
+        "next": "list_icons"
+      }
+    },
+    {
+      "id": "list_icons",
+      "$template": "icons",
+      "navigation": {
+        "prev": "list_devices",
+        "next": "freeathome"
+      }
+    },
+    {
+      "id": "freeathome",
+      "$template": "freeathome"
+    }
+  ]
+}

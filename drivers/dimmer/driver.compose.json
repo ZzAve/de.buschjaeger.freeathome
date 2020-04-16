@@ -12,23 +12,7 @@
     "large": "/drivers/dimmer/assets/images/large.png",
     "small": "/drivers/dimmer/assets/images/small.png"
   },
-  "pair": [
-    {
-      "id": "list_devices",
-      "template": "list_devices",
-      "navigation": {
-        "next": "list_icons"
-      }
-    },
-    {
-      "id": "list_icons",
-      "navigation": {
-        "prev": "list_devices",
-        "next": "freeathome"
-      }
-    },
-    {
-      "id": "freeathome"
-    }
+  "$extends": [
+    "default"
   ]
 }

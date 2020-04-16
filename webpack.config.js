@@ -77,17 +77,16 @@ const appConfig = (env, argv) => {
         to: distPath + "/drivers"
       },
       {
-        from: "**/pair/**/*",
-        context: "drivers",
-        to: distPath + "/drivers"
-      },
-      {
         from: "**/*.json",
         context: "drivers",
         to: distPath + "/drivers"
       },
       {
         from: "settings/**/*",
+        to: distPath
+      },
+      {
+        from: ".homeycompose/**/*",
         to: distPath
       },
       {
