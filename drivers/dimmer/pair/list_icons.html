@@ -1,0 +1,90 @@
+<div class="list-icons">
+
+    <script src='../../../assets/vue.min.js' xmlns="http://www.w3.org/1999/html"></script>
+    <script src="../../../assets/icons/icons.js"></script>
+    <script>
+      Homey.setTitle('Choose an icon for your devices');
+      new Vue({
+        el: '#icons-list',
+        data: {
+          classes: freeAtHomeIcons
+        },
+        methods: {
+          addClass(deviceclass) {
+            console.log('Add class: ', deviceclass);
+            Homey.emit('addClass', {'icon': deviceclass.relativePath}, function (err, result) {
+              console.log(result);
+              if (err) {
+                console.log(err);
+                return;
+              }
+              Homey.nextView();
+            });
+          }
+        }
+      });
+
+    </script>
+    <style>
+
+
+        .list-icons ul {
+            display: flex;
+            flex-wrap: wrap;
+            align-content: space-around;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .list-icons li {
+            flex: none;
+            position: relative;
+            margin: 0.5em;
+            width: 5em;
+            height: auto;
+
+        }
+
+        .list-icons label.label {
+            display: block;
+        }
+        .list-icons .icon-element {
+            display: flex;
+            justify-content: flex-start;
+            flex-direction: column;
+        }
+
+        .list-icons .icon-element > * {
+            flex: none;
+            width: 96%;
+            margin: 0.5em 2%;
+        }
+
+        .list-icons li .name {
+            text-align: center;
+            overflow: hidden;
+            padding: 0;
+        }
+
+        /*.list-icons ul * {*/
+        /*    border: 1px solid black;*/
+        /*}*/
+    </style>
+    <div class="container">
+        <ul id="icons-list">
+            <li class="device" v-for="iconClass in classes" v-on:click="addClass(iconClass)">
+                <label :for="iconClass.id" class="label">
+                    <div class="icon-element" :id="iconClass.id">
+                        <img class="icon-select" :src="iconClass.absolutePath" :alt="iconClass.name"/>
+                    </div>
+                </label>
+            </li>
+        </ul>
+
+    </div>
+</div>
+
+

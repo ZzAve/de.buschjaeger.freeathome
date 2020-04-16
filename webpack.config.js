@@ -68,15 +68,16 @@ const appConfig = (env, argv) => {
         to: distPath
       },
       {
-        from: "assets/**/*.png",
-        to: distPath
-      },
-      {
-        from: "assets/**/*.svg",
+        from: "assets/**/*",
         to: distPath
       },
       {
         from: "**/assets/**/*",
+        context: "drivers",
+        to: distPath + "/drivers"
+      },
+      {
+        from: "**/pair/**/*",
         context: "drivers",
         to: distPath + "/drivers"
       },
@@ -102,7 +103,9 @@ const appConfig = (env, argv) => {
       app: "./app.js",
       api: "./api.js",
       "drivers/switch/driver": "./drivers/switch/driver.js",
-      "drivers/switch/device": "./drivers/switch/device.js"
+      "drivers/switch/device": "./drivers/switch/device.js",
+      "drivers/dimmer/driver": "./drivers/dimmer/driver.js",
+      "drivers/dimmer/device": "./drivers/dimmer/device.js"
     },
     module: {
       rules: [
@@ -123,7 +126,7 @@ const appConfig = (env, argv) => {
       libraryTarget: "commonjs2"
     },
 
-    devtool: PRODUCTION ? false : "source-map",
+    devtool: PRODUCTION ? false : "inline-source-map",
 
     externals: {
       homey: "homey",

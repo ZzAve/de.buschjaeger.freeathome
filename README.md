@@ -44,6 +44,14 @@ without having to leave the IDE. It also results in less trial and error.~~
 - Add device specific settings, such as energy consumption
 - Register with freeAtHome sysAp should have a retry function, both from device, and internally (max retries, retry with backoff)
     
+## Credits:
+
+* App icon by:
+    Smart Home by [Adrien Coquet from the Noun Project](https://thenounproject.com/search/?q=2690287&i=2690287) 
+* Light icon by:
+    Light by [Numero Uno from the Noun Project](https://thenounproject.com/search/?q=1754118&i=1754118)
+* Socket icon by:
+    wall socket by [emma mitchell from the Noun Project](https://thenounproject.com/search/?q=1644271&i=1644271)
 # Initial scope (POC)
 
 ## Scope of POC 

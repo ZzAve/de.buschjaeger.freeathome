@@ -1,5 +1,4 @@
-// const Homey = require("homey");
-const { safe, Homey } = require("../../lib/util");
+const { safe, delay, Homey } = require("../../lib/util");
 
 class SwitchDevice extends Homey.Device {
   // this method is called when the Device is inited
@@ -20,12 +19,10 @@ class SwitchDevice extends Homey.Device {
     // Set device state
     // Enable states
 
-    this.log("Fetching 'api' ...");
-    this.api = await this.getApi();
-    this.log("... Fetched 'api'");
+
 
     try {
-      const {deviceState: initialDeviceState} = await this.api.registerDevice({
+      const {deviceState: initialDeviceState} = await (await this.getApi()).registerDevice({
         serialNumber: this.deviceId,
         channel: this.deviceChannel,
         onPoll: this.onPoll.bind(this),
@@ -50,21 +47,16 @@ class SwitchDevice extends Homey.Device {
 
   //onEnd
   // deregistration of eventListeners
-
   async onDeleted() {
-    const api = await this.getApi();
-    api.unregisterDevice({uniqueId: this.id});
+    await (await this.getApi()).unregisterDevice({uniqueId: this.id});
   }
 
-  async getApi() {
-    return await Homey.app.getSysAp();
-  }
 
   // this method is called when the Device has requested a state change (turned on or off)
   async onCapabilityOnoff(value, opts) {
     try {
-      const api = await this.getApi();
-      const response = await api.setSwitchState(
+
+      const response = await (await this.getApi()).setSwitchState(
         this.deviceId,
         this.deviceChannel,
         +value
@@ -104,6 +96,46 @@ class SwitchDevice extends Homey.Device {
 
   onError(e) {
     this.error("some error", e);
+  }
+
+
+  /*
+   try{
+      this.log("Fetching 'api' ...");
+      await delay(1000);
+      // this.api= {}
+      this.api = await this.getApi(true);
+      this.log("... Fetched 'api'");
+    } catch (e) {
+      this.error("Couldn't fetch API. Device disconnect", e);
+      this.setUnavailable(Homey.__("Device not usable")).catch(this.error);
+    }
+   */
+  // async getApi() {
+  // /  this.log("Fetching 'api' ...");
+  //   this.api = await this.getApi();
+    // let sysApApi = await Homey.app.getSysAp();
+    // this.log("... Fetched 'api'");
+    // return sysApApi;
+  // }
+
+
+  async getApi(retry = true) {
+    try {
+      this.log(`Tryin to get a hold of sysAP API (retry ${retry})`);
+      return await Homey.app.getSysAp();
+    } catch( e) {
+      this.error("Could not get get FreeAtHome API reference.", e);
+
+      if (retry) {
+        this.log(" Trying to connect to API once more");
+        await delay(5000);
+        return this.getApi(false)
+      } else {
+        throw e
+      }
+    }
+
   }
 }
 

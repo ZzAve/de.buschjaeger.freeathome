@@ -1,0 +1,85 @@
+<html>
+<head>
+
+    <script src='../../../assets/vue.min.js' xmlns="http://www.w3.org/1999/html"></script>
+
+    <script src="../../../assets/icons/icons.js"></script>
+    <script>
+      // Homey.setTitle('Choose an icon for your devices');
+      new Vue({
+        el: '#devices-list',
+        data: {
+          // classes: freeAtHomeIcons
+          classes: [
+            {
+              id: "0",
+              freeAtHomeId: "-1",
+              path: `${basePath}/noun_Light_1754118.svg`,
+              name: "Light bulb",
+
+            },
+            {
+              id: "1",
+              freeAtHomeId: "-1",
+              path: `${basePath}/noun_wall socket_1644271.svg`,
+              name: "Wall socket",
+
+            }
+          ]
+        },
+        methods: {
+          addClass(deviceclass) {
+            console.log('Add class: ', deviceclass)
+            // Homey.emit('addClass', {'class': deviceclass}, function (err, result) {
+            //   if(err){console.log(err); return;}
+            // Homey.nextView();
+            // });
+          }
+        }
+      });
+
+    </script>
+    <style>
+        .list-icons ul {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            align-content: space-around;
+        }
+
+        .list-icons li {
+            display: block;
+            flex: auto;
+        }
+    </style>
+</head>
+<body>
+
+<div class="list-icons">
+    <div class="container">
+        <h1>Big title</h1>
+        <div>Hi there</div>
+        <ul id="devices-list">
+            <li class="devices">
+                <div class="overlay"></div>
+                <span class="name">First list item</span>
+            </li>
+
+
+            <li class="devices" v-for="iconClass in classes" v-on:click="addClass(iconClass)" id="{{iconClass.id}}">
+                <label for="{{iconClass.id}}" class="name">
+                    <span>{{iconClass.id}}</span>
+                    <span class="icon" :style="{'background-image': 'url(' + iconClass.path + )'}"></span>
+                    <div class="name" v-for="(value, key) in iconClass" tabindex="{{index-1}}">{{key}}: {{value}}
+                    </div>
+                </label>
+            </li>
+        </ul>
+    </div>
+
+</div>
+
+
+</body>
+
+</html>
