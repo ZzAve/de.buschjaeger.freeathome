@@ -1,0 +1,17 @@
+{
+  "id": "blinds",
+  "name": {
+    "en": "Blinds"
+  },
+  "class": "blinds",
+  "capabilities": [
+    "windowcoverings_set"
+  ],
+  "images": {
+    "large": "/drivers/shutter/assets/images/large.png",
+    "small": "/drivers/shutter/assets/images/small.png"
+  },
+  "$extends": [
+    "default"
+  ]
+}

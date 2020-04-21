@@ -6,7 +6,7 @@ class Dimmer extends FreeAtHomeDevice {
   // this method is called when the Device is inited
   onFreeAtHomeInit() {
     const capabilities = this.getCapabilities();
-    this.log("Capabilities:", capabilities.join(", "));
+    this.debug("Capabilities:", capabilities.join(", "));
 
     this.registerMultipleCapabilityListener(
       capabilities,
@@ -15,8 +15,8 @@ class Dimmer extends FreeAtHomeDevice {
   }
 
   async onMultipleCapabilities(valueObj, optsObj) {
-    this.log("valueObj", valueObj);
-    this.log("optsObj", optsObj);
+    this.debug("valueObj", valueObj);
+    this.debug("optsObj", optsObj);
 
     const convertedValue = {};
     // Calculate/Convert capabilities value
