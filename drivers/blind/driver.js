@@ -3,7 +3,7 @@ const BLIND_FUNCTION_ID = "61";
 
 class BlindDriver extends FreeAtHomeDriver {
 	async onInitFlow() {
-		this.log("ShutterDriver has been inited");
+		this.log("BlindDriver has been inited");
 	}
 
 	getFunctionId() {

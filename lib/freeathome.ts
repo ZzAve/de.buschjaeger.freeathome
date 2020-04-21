@@ -127,9 +127,13 @@ export class FreeAtHomeApi implements Subscriber{
     try {
       if (message.type === "error") {
         //TODO: RECONNECT WITH SYSTEM? ERROR HANDLING SOMETHING
-        this.stop();
-        // NO emitting?
-        // this.emit("disconnected", message);
+        if (message.result !== null && message.result.name === "TimeoutError"){
+          this.stop().then(_ => this.start()) // consider timeouts and stuff
+        } else {
+          this.stop();
+          // NO emitting?
+          // this.emit("disconnected", message);
+        }
       } else if (message.type === "update") {
 
         await this._onUpdate(message);

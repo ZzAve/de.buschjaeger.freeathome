@@ -127,7 +127,7 @@ const appConfig = (env, argv) => {
       libraryTarget: "commonjs2"
     },
 
-    devtool: PRODUCTION ? false : "inline-source-map",
+    devtool: PRODUCTION ? false : "cheap-module-eval-source-map",
 
     externals: {
       homey: "homey",

@@ -1,4 +1,3 @@
-// const Homey = require("homey");
 const { safe } = require("../../lib/util");
 const FreeAtHomeDevice = require("../../lib/freeAtHomeDevice");
 
@@ -6,7 +5,9 @@ class Blind extends FreeAtHomeDevice {
 	// this method is called when the Device is inited
 	onFreeAtHomeInit() {
 		const capabilities = this.getCapabilities();
-		this.log("Capabilities:", capabilities.join(", "));
+		this.debug("Capabilities:", capabilities.join(", "));
+
+		this.moveDirection = 0;
 
 		this.registerMultipleCapabilityListener(
 			capabilities,
@@ -15,37 +16,37 @@ class Blind extends FreeAtHomeDevice {
 	}
 
 	async onMultipleCapabilities(valueObj, optsObj) {
-		this.log("valueObj", valueObj);
-		this.log("optsObj", optsObj);
+		this.debug("valueObj", valueObj);
+		this.debug("optsObj", optsObj);
 
-		// const convertedValue = {};
-		// // Calculate/Convert capabilities value
-		// if( typeof valueObj.dim === 'number' ) {
-		// 	valueObj.onoff = valueObj.dim > 0;
-		// 	convertedValue.onoff = +(valueObj.dim > 0);
-		// 	convertedValue.dim = (valueObj.dim * 100).toFixed(0)
-		// } else if (typeof valueObj.onoff === 'boolean'){
-		// 	convertedValue.onoff = +valueObj.onoff;
-		// }
+
+		const convertedValue = {};
+		// Calculate/Convert capabilities value
+		if( typeof valueObj.windowcoverings_set === 'number' ) {
+			convertedValue.windowcoverings_set = ((1-valueObj.windowcoverings_set ) *100).toFixed(0)
+		}
 		//
-		// const promises = [];
-		// if (typeof  convertedValue.onoff !== "undefined") {
-		// 	promises.push(this.handleCapability(convertedValue.onoff, optsObj.onoff, "onoff")
-		// 		.then(() => {
-		// 			this.setCapabilityValue("onoff", valueObj.onoff).catch(this.error);
-		// 		})
-		// 	);
-		// }
-		//
-		// if (typeof convertedValue.dim !== "undefined"){
-		// 	promises.push(this.handleCapability(convertedValue.dim, optsObj.dim, "dim")
-		// 		.then(() => {
-		// 			this.setCapabilityValue("dim", valueObj.dim).catch(this.error);
-		// 		})
-		// 	);
-		// }
-		//
-		// await Promise.all(promises)
+		const promises = [];
+		if (typeof convertedValue.windowcoverings_set !== "undefined") {
+			promises.push(
+				this.ensureDeviceIsNotMoving()
+					.then(_ =>
+						this.handleCapability(convertedValue.windowcoverings_set, optsObj.windowcoverings_set, "windowcoverings_set")
+					)
+					.then(() => {
+						this.setCapabilityValue("windowcoverings_set", valueObj.windowcoverings_set).catch(this.error);
+					})
+			);
+		}
+
+		await Promise.all(promises)
+	}
+
+	async ensureDeviceIsNotMoving() {
+		if (this.moveDirection !== 0) {
+			this.debug("Setting windowcoverings_state to 0");
+			return await this.handleCapability(0, {}, "windowcoverings_state")
+		}
 	}
 
 	onPoll(fullDeviceState) {
@@ -65,17 +66,28 @@ class Blind extends FreeAtHomeDevice {
 			.channels[this.deviceChannel]
 			.datapoints;
 
-		console.log("Received update for device", data )
-		// const onoff = data["odp0000"];
-		// const dim = data["odp0001"];
+		/*
+		odp0000 -- pairingid 288 move indication
+		odp0001 -- location indication
 
-		// if ("value" in onoff) {
-		// 	this.setStateSafely(!!+onoff.value, "onoff");
-		// }
+		idp0000 -- move in direction (1 is down, 0 is up)
+		idp0001 -- stop / start moving in direction (1 is down, 0 is up)
+		idp0002 --  35 location indiccation
 
-		// if ("value" in dim) {
-		// 	this.setStateSafely(+dim.value / 100.0, "dim");
-		// }
+		 */
+
+		const movingDirection = data["odp0000"];
+		const locationIndication = data["odp0001"];
+
+		if ("value" in locationIndication) {
+			const convertedValue = 1.0 - (+locationIndication.value / 100.0);
+			this.log(`Setting ${this.id}  windowcoverings_set to ${convertedValue} (derived from ${locationIndication.value})`)
+			this.setStateSafely(convertedValue, "windowcoverings_set");
+		}
+
+		if ("value" in movingDirection){
+			this.moveDirection = +movingDirection.value
+		}
 	}
 
 	onError(e) {

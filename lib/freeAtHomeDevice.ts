@@ -1,11 +1,13 @@
-import {delay} from "./util";
-
-const {Homey } = require("./util");
+import {delay, Homey} from "./util";
 
 const capabilityMapping = {
     onoff: "idp0000",
-    dim: "idp0002"
+    dim: "idp0002",
+    windowcoverings_set: "idp0002",
+    windowcoverings_state: "idp0001"
 };
+
+const DEBUG_ENABLED = true;
 
 class FreeAtHomeDevice extends Homey.Device {
     // this method is called when the Device is inited
@@ -99,7 +101,7 @@ class FreeAtHomeDevice extends Homey.Device {
 
     async getApi(retry = true) {
         try {
-            this.log(`Tryin to get a hold of sysAP API (retry ${retry})`);
+            this.debug(`Tryin to get a hold of sysAP API (retry ${retry})`);
             return await Homey.app.getSysAp();
         } catch( e) {
             this.error("Could not get get FreeAtHome API reference.", e);
@@ -114,6 +116,16 @@ class FreeAtHomeDevice extends Homey.Device {
         }
 
     }
+
+    debug(message?: any, ...optionalParams: any[]) : void{
+        if (DEBUG_ENABLED){
+            if (typeof message === "string"){
+                this.log(`[DEBUG] ${message}`, optionalParams)
+            } else {
+                this.log('[DEBUG]', message, optionalParams)
+            }
+        }
+}
 }
 
 module.exports = FreeAtHomeDevice;

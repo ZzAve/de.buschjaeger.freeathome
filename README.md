@@ -34,7 +34,11 @@ I have quite a list of things that I want to do (not necessarily in order):
 
 - ~~Internalize the freeathome-api to eliminate the need for an 'external' dependency~~
 - Add support for dimmers, blinds, temperature sensors, and, if possible scenes.
-    - Use functionId to determine device channel capabilities
+    - ~~Use functionId to determine device channel capabilities~~
+    - ~~Add dimmers~~
+    - Add blinds
+    - Add temperature sensors
+    - Add scenes
 - ~~Make use of Typescript interface to have a little more insight in the classes and methods inside 'homey',
 without having to leave the IDE. It also results in less trial and error.~~
 - ~~Add linting and autoformatting because I can~~
@@ -47,11 +51,16 @@ without having to leave the IDE. It also results in less trial and error.~~
 ## Credits:
 
 * App icon by:
-    Smart Home by [Adrien Coquet from the Noun Project](https://thenounproject.com/search/?q=2690287&i=2690287) 
+    * Smart Home by [Adrien Coquet from the Noun Project](https://thenounproject.com/search/?q=2690287&i=2690287) 
 * Light icon by:
-    Light by [Numero Uno from the Noun Project](https://thenounproject.com/search/?q=1754118&i=1754118)
+    * Light by [Numero Uno from the Noun Project](https://thenounproject.com/search/?q=1754118&i=1754118)
 * Socket icon by:
-    wall socket by [emma mitchell from the Noun Project](https://thenounproject.com/search/?q=1644271&i=1644271)
+    * wall socket by [emma mitchell from the Noun Project](https://thenounproject.com/search/?q=1644271&i=1644271)
+* Blinds icon by:
+    * blinds by [Christian Baptist from the Noun Project](https://thenounproject.com/search/?q=blinds&i=1977747)
+    * roller blinds by [Vectors Point from the Noun Project](https://thenounproject.com/search/?q=blinds&i=3189561)
+    * Curtain by [ProSymbols from the Noun Project](https://thenounproject.com/search/?q=curtain&i=2423823)
+    * Window shutter by [Alexander Skowalsky from the Noun Project](https://thenounproject.com/search/?q=%20window%20shutter&i=760089)    
 # Initial scope (POC)
 
 ## Scope of POC 
