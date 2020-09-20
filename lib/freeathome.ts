@@ -3,68 +3,15 @@
 import {BroadcastMessage} from "freeathome-api/dist/lib/BroadcastMessage";
 import {ClientConfiguration, SystemAccessPoint} from "freeathome-api";
 import {Subscriber} from "freeathome-api/dist/lib/Subscriber";
-import { delay } from "./util";
+import {Homey, delay, Queue} from "./util";
 
 class FreeAtHomeError extends Error {
 }
 
-const values = {
-  on: 1,
-  off: 0
-};
+let instance = undefined;
+export const getFreeAthomeApi = () => instance;
 
-const capabilityMapping = {
-  onoff: "idp0000",
-  dim: "idp0002"
-};
-
-const deviceMapping = {
-  "1010": {
-    // "Sensor/ Schaltaktor 2/2-fach"
-    channels: ["ch0006", "ch0007"],
-    capabilities: ["onoff"]
-  },
-  "1017": {
-    // "Sensor/Dimmaktor 1/1-fach"
-    channels: ["ch0003"],
-    capabilities: ["onoff", "dim"]
-  },
-  "1019": {
-    // 	"Sensor/Dimmaktor 2/1-fach"
-    channels: ["ch0006"],
-    capabilities: ["onoff", "dim"]
-  },
-
-  "100C": {
-    // "Sensor/ Schaltaktor 1/1-fach"
-    channels: ["ch0003"],
-    capabilities: ["onoff"]
-  },
-  "2039": {
-    // "Sensor/ Schaltaktor 1/1-fach"
-    channels: ["ch0006"],
-    capabilities: ["onoff"]
-  }
-};
-
-const switchesDeviceIds = ["1010", "100C", "2039"];
-const dimmableDeviceIds = ["1017", "1019"];
-
-
-class Queue<T> {
-  _store: T[] = [];
-  push(val: T) {
-    this._store.push(val);
-  }
-
-  pop(): T | undefined {
-    return this._store.shift();
-  }
-}
-
-
-
-export class FreeAtHomeApi implements Subscriber{
+export class FreeAtHomeApi extends Homey.SimpleClass implements Subscriber {
   private _connected: boolean;
   private systemAccessPoint: SystemAccessPoint;
   private pollInterval: NodeJS.Timeout;
@@ -78,13 +25,16 @@ export class FreeAtHomeApi implements Subscriber{
   private  queuedUpdates: Queue<BroadcastMessage>;
   //current state of all devices
 
-  constructor(config?: ClientConfiguration) {
+
+  constructor() {
+    super();
+    console.log("Creating freeathome instance");
     this._connected = false;
-    this.systemAccessPoint = this.safeConfig(config);
     this.devices = new Map<string, any>();
     this.queuedUpdates = new Queue()
-  }
 
+    instance = this;
+  }
 
   async start(config?: ClientConfiguration) {
     console.log("Starting free@home API");
@@ -100,7 +50,7 @@ export class FreeAtHomeApi implements Subscriber{
       await this._onPoll();
     } catch (e) {
       this.stop(true);
-      console.error("Could not connect to SysAp: ", e);
+      this.error("Could not connect to SysAp: ", e);
       // this.emit("disconnected", e);
     }
   }
@@ -191,7 +141,8 @@ export class FreeAtHomeApi implements Subscriber{
     Object.values(allDevices).forEach(device => {
       Object.entries(device.channels).forEach(([key, channel]) => {
         // @ts-ignore
-        if (channel.functionId === functionId) {
+        if (channel.functionId === functionId
+        ) {
           devices.push(this.internalize(device, key));
         }
       });
@@ -223,20 +174,6 @@ export class FreeAtHomeApi implements Subscriber{
       return {}
     }
 
-  }
-
-  /**
-   *
-   * @param deviceId
-   * @param value 1 or 0 (on / off)
-   * @returns {Promise<void>}
-   */
-  async setSwitchState(deviceId, channel, value) {
-    return await this.setDeviceState(deviceId, channel, capabilityMapping.onoff, value);
-  }
-  
-  async setDimState(deviceId, channel, value){
-    return await this.setDeviceState(deviceId, channel, capabilityMapping.dim, value)
   }
 
   /**

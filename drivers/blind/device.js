@@ -2,71 +2,108 @@ const { safe } = require("../../lib/util");
 const FreeAtHomeDevice = require("../../lib/freeAtHomeDevice");
 
 class Blind extends FreeAtHomeDevice {
-	// this method is called when the Device is inited
-	onFreeAtHomeInit() {
-		const capabilities = this.getCapabilities();
-		this.debug("Capabilities:", capabilities.join(", "));
+  // this method is called when the Device is inited
+  onFreeAtHomeInit() {
+    const capabilities = this.getCapabilities();
+    this.debug("Capabilities:", capabilities.join(", "));
 
-		this.moveDirection = 0;
+    this.moveDirection = 0;
 
-		this.registerMultipleCapabilityListener(
-			capabilities,
-			this.onMultipleCapabilities.bind(this)
-		);
-	}
+    this.registerMultipleCapabilityListener(
+      capabilities,
+      this.onMultipleCapabilities.bind(this)
+    );
 
-	async onMultipleCapabilities(valueObj, optsObj) {
-		this.debug("valueObj", valueObj);
-		this.debug("optsObj", optsObj);
+    // this.addCapability('windowcoverings_state')
+    // 	.catch(this.error)
+    // 	.then(this.log);
+  }
 
+  async onMultipleCapabilities(valueObj, optsObj) {
+    this.debug("valueObj", valueObj);
+    this.debug("optsObj", optsObj);
 
-		const convertedValue = {};
-		// Calculate/Convert capabilities value
-		if( typeof valueObj.windowcoverings_set === 'number' ) {
-			convertedValue.windowcoverings_set = ((1-valueObj.windowcoverings_set ) *100).toFixed(0)
+    const convertedValue = {};
+    // Calculate/Convert capabilities value
+    if (typeof valueObj.windowcoverings_set === "number") {
+      convertedValue.windowcoverings_set = ((1 - valueObj.windowcoverings_set) * 100).toFixed(0);
+    }
+
+    if (typeof valueObj.windowcoverings_state === "string"){
+    	convertedValue.windowcoverings_state = this.toFreeAtHomeDirection(valueObj.windowcoverings_state);
 		}
-		//
-		const promises = [];
-		if (typeof convertedValue.windowcoverings_set !== "undefined") {
+
+    const promises = [];
+    if (typeof convertedValue.windowcoverings_set !== "undefined") {
+      promises.push(
+        this.ensureDeviceIsNotMoving()
+          .then(_ =>
+            this.handleCapability(convertedValue.windowcoverings_set, optsObj.windowcoverings_set, "windowcoverings_set")
+          )
+          .then(() => {
+            this.setCapabilityValue("windowcoverings_set", valueObj.windowcoverings_set).catch(this.error);
+          })
+      );
+    }
+
+		if (typeof convertedValue.windowcoverings_state !== "undefined") {
 			promises.push(
-				this.ensureDeviceIsNotMoving()
-					.then(_ =>
-						this.handleCapability(convertedValue.windowcoverings_set, optsObj.windowcoverings_set, "windowcoverings_set")
-					)
-					.then(() => {
-						this.setCapabilityValue("windowcoverings_set", valueObj.windowcoverings_set).catch(this.error);
+				this.handleCapability(convertedValue.windowcoverings_state, optsObj.windowcoverings_state, "windowcoverings_state")
+					.then(_ => {
+						this.setCapabilityValue("windowcoverings_state", valueObj.windowcoverings_state).catch(this.error);
 					})
-			);
+			)
 		}
 
-		await Promise.all(promises)
-	}
 
-	async ensureDeviceIsNotMoving() {
-		if (this.moveDirection !== 0) {
-			this.debug("Setting windowcoverings_state to 0");
-			return await this.handleCapability(0, {}, "windowcoverings_state")
+    await Promise.all(promises);
+  }
+
+  async ensureDeviceIsNotMoving() {
+    if (this.moveDirection !== 0) {
+      this.debug("Setting windowcoverings_state to 0");
+      return await this.handleCapability(0, {}, "windowcoverings_state");
+    }
+  }
+
+  onPoll(fullDeviceState) {
+    super.onPoll(...arguments);
+
+    this._updateState(safe(fullDeviceState).deviceState);
+  }
+
+  onUpdate(changedState) {
+    super.onUpdate(...arguments);
+
+    this._updateState(safe(changedState).deviceUpdate);
+  }
+
+  toFreeAtHomeDirection(homeyDirection){
+		switch (homeyDirection) {
+			case "down":
+				return 1;
+			case "up":
+				return 0;
+			default:
+				// if device is already idle, don't move it
+				return this.moveDirection === 0 ? undefined : "0";
+		}
+	}
+  toMovingDirection(freeAtHomeDirection) {
+		switch (freeAtHomeDirection) {
+			case "3":
+				return "down";
+			case "2":
+				return "up";
+			default:
+				return "idle";
 		}
 	}
 
-	onPoll(fullDeviceState) {
-		super.onPoll(...arguments);
+  _updateState(deviceState) {
+    const data = deviceState.channels[this.deviceChannel].datapoints;
 
-		this._updateState(safe(fullDeviceState).deviceState);
-	}
-
-	onUpdate(changedState) {
-		super.onUpdate(...arguments);
-
-		this._updateState(safe(changedState).deviceUpdate);
-	}
-
-	_updateState(deviceState) {
-		const data = deviceState
-			.channels[this.deviceChannel]
-			.datapoints;
-
-		/*
+    /*
 		odp0000 -- pairingid 288 move indication
 		odp0001 -- location indication
 
@@ -76,24 +113,29 @@ class Blind extends FreeAtHomeDevice {
 
 		 */
 
-		const movingDirection = data["odp0000"];
-		const locationIndication = data["odp0001"];
+    const movingDirection = data["odp0000"];
+    const locationIndication = data["odp0001"];
 
-		if ("value" in locationIndication) {
-			const convertedValue = 1.0 - (+locationIndication.value / 100.0);
-			this.log(`Setting ${this.id}  windowcoverings_set to ${convertedValue} (derived from ${locationIndication.value})`)
-			this.setStateSafely(convertedValue, "windowcoverings_set");
-		}
+    if ("value" in locationIndication) {
+      const convertedValue = 1.0 - +locationIndication.value / 100.0;
+      this.log(
+        `Setting ${this.id}  windowcoverings_set to ${convertedValue} (derived from ${locationIndication.value})`
+      );
+      this.setStateSafely(convertedValue, "windowcoverings_set");
+    } else if ("value" in movingDirection) {
+      const convertedDirection = this.toMovingDirection(movingDirection.value);
+      this.moveDirection = +movingDirection.value;
+      this.log(
+        `Setting ${this.id}  windowcoverings_state to ${convertedDirection} (derived from ${movingDirection.value})`
+      );
+      this.setStateSafely(convertedDirection, "windowcoverings_state");
+    }
+  }
 
-		if ("value" in movingDirection){
-			this.moveDirection = +movingDirection.value
-		}
-	}
-
-	onError(e) {
-		super.onError(...arguments);
-		this.error("some error", e);
-	}
+  onError(e) {
+    super.onError(...arguments);
+    this.error("some error", e);
+  }
 }
 
 module.exports = Blind;

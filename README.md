@@ -94,3 +94,11 @@ Final result should look like this:
 
 ![Connections](docs/landscape.png)
 
+########
+
+## 
+
+- Devices / Drivers connect with FreeAtHome instance --> (private constructor) singleton setup
+- Dynamic 'getSysAp' function connecting w/ FreeAtHome directly.
+- FreeAtHome.getSysAP returns a Promise that resolve to a valid, working sysAp connection or rejects
+-   

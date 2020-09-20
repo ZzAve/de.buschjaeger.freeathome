@@ -1,5 +1,5 @@
 require("promise.prototype.finally").shim();
-const Homey = require("homey");
+const { Homey } = require("./lib/util");
 const { FreeAtHomeApi } = require("./lib/freeathome");
 const Logger = require('./captureLogs.js');
 
@@ -8,7 +8,7 @@ class FreeAtHome extends Homey.App {
     this.log(`${Homey.app.manifest.id} is running...`);
     this.logger = new Logger();	// [logName] [, logLength]
     this.apiConnected = false;
-    this.sysAp = undefined
+    this.sysAp = undefined;
 
     process.on("uncaughtException", err => {
       this.error(err, "uncought Exception");
@@ -23,8 +23,8 @@ class FreeAtHome extends Homey.App {
         // save logs to persistant storage
         this.logger.saveLogs();
       })
-      .on('memwarn', () => {
-        this.log('memwarn!');
+      .on('memwarn', (data) => {
+        this.log('memwarn! ', data);
       });
 
 
@@ -51,7 +51,7 @@ class FreeAtHome extends Homey.App {
       });
 
       this.apiConnected = true;
-      this.log("Started the freeathomme api");
+      this.log("Started the freeathome api");
       return this._api
   }
 

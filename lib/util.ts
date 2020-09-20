@@ -14,6 +14,18 @@ export const safe = function(obj) {
 
 
 export const Homey = require("homey");
+
+export class Queue<T> {
+  _store: T[] = [];
+  push(val: T) {
+    this._store.push(val);
+  }
+
+  pop(): T | undefined {
+    return this._store.shift();
+  }
+}
+
 // exports.delay = delay;
 // exports.safe = safe;
 // exports.Homey = Homey;

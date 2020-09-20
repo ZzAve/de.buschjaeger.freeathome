@@ -5,6 +5,7 @@
   },
   "class": "blinds",
   "capabilities": [
+    "windowcoverings_state",
     "windowcoverings_set"
   ],
   "images": {
