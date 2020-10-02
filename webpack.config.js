@@ -42,58 +42,61 @@ const appConfig = (env, argv) => {
       : null,
 
     new CleanWebpackPlugin(),
-    new CopyWebpackPlugin([
-      {
-        from: "./tmp/app.json",
-        to: distPath
-      },
-      {
-        from: "./*.md",
-        to: distPath
-      },
-      {
-        from: "./LICENSE",
-        to: distPath
-      },
-      {
-        from: "./.homeyignore",
-        to: distPath
-      },
-      {
-        from: "./.homeyplugins.json",
-        to: distPath
-      },
-      {
-        from: "./APPSTORE.md",
-        to: distPath
-      },
-      {
-        from: "assets/**/*",
-        to: distPath
-      },
-      {
-        from: "**/assets/**/*",
-        context: "drivers",
-        to: distPath + "/drivers"
-      },
-      {
-        from: "**/*.json",
-        context: "drivers",
-        to: distPath + "/drivers"
-      },
-      {
-        from: "settings/**/*",
-        to: distPath
-      },
-      {
-        from: ".homeycompose/**/*",
-        to: distPath
-      },
-      {
-        from: "locales/**/*",
-        to: distPath
-      }
-    ])
+    new CopyWebpackPlugin({
+      patterns: [
+        {
+          from: "./tmp/app.json",
+          to: distPath
+        }
+        ,
+        {
+          from: "./*.md",
+          to: distPath
+        },
+        {
+          from: "./LICENSE",
+          to: distPath
+        },
+        {
+          from: "./.homeyignore",
+          to: distPath
+        },
+        {
+          from: "./.homeyplugins.json",
+          to: distPath
+        },
+        {
+          from: "./APPSTORE.md",
+          to: distPath
+        },
+        {
+          from: "assets/**/*",
+          to: distPath
+        },
+        {
+          from: "**/assets/**/*",
+          context: "drivers",
+          to: distPath + "/drivers"
+        },
+        {
+          from: "**/*.json",
+          context: "drivers",
+          to: distPath + "/drivers"
+        },
+        {
+          from: "settings/**/*",
+          to: distPath
+        },
+        {
+          from: ".homeycompose/**/*",
+          to: distPath
+        },
+        {
+          from: "locales/**/*",
+          to: distPath
+        }
+      ]
+    })
   ].filter(Boolean);
 
   return {
