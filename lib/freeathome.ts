@@ -1,12 +1,11 @@
 "use strict";
 
-import {BroadcastMessage} from "freeathome-api/dist/lib/BroadcastMessage";
-import {ClientConfiguration, SystemAccessPoint} from "freeathome-api";
-import {Subscriber} from "freeathome-api/dist/lib/Subscriber";
-import {Homey, delay, Queue} from "./util";
+import { BroadcastMessage } from "freeathome-api/dist/lib/BroadcastMessage";
+import { ClientConfiguration, SystemAccessPoint } from "freeathome-api";
+import { Subscriber } from "freeathome-api/dist/lib/Subscriber";
+import { delay, Homey, Queue } from "./util";
 
-class FreeAtHomeError extends Error {
-}
+class FreeAtHomeError extends Error {}
 
 let instance = undefined;
 export const getFreeAthomeApi = () => instance;
@@ -22,22 +21,24 @@ export class FreeAtHomeApi extends Homey.SimpleClass implements Subscriber {
   private readonly devices: Map<string, any>; // make this a list of freeathome devices
   private state: any;
 
-  private  queuedUpdates: Queue<BroadcastMessage>;
+  private queuedUpdates: Queue<BroadcastMessage>;
   //current state of all devices
-
+  private count: number = 0;
 
   constructor() {
     super();
     console.log("Creating freeathome instance");
     this._connected = false;
     this.devices = new Map<string, any>();
-    this.queuedUpdates = new Queue()
+    this.queuedUpdates = new Queue();
 
     instance = this;
   }
 
   async start(config?: ClientConfiguration) {
     console.log("Starting free@home API");
+    this.count = 0;
+
     if (config) {
       console.log("(re)Setting config");
       this.systemAccessPoint = this.safeConfig(config);
@@ -45,11 +46,11 @@ export class FreeAtHomeApi extends Homey.SimpleClass implements Subscriber {
 
     try {
       await this.systemAccessPoint.connect();
-      this._connected = true;
-      await delay(8000);
+      // await delay(20000);
+      await this.waitUntilConnected(20, 1000);
       await this._onPoll();
     } catch (e) {
-      this.stop(true);
+      await this.stop(true);
       this.error("Could not connect to SysAp: ", e);
       // this.emit("disconnected", e);
     }
@@ -64,6 +65,23 @@ export class FreeAtHomeApi extends Homey.SimpleClass implements Subscriber {
     }
   }
 
+  async waitUntilConnected(retries: number, interval: number) {
+    if (retries > 0) {
+      console.log(
+        "Checking if connection is up and running with freeathome..."
+      );
+
+      if (this._connected == true) {
+        return;
+      }
+
+      await delay(interval);
+      return this.waitUntilConnected(retries - 1, interval);
+    }
+
+    throw Error("Startup is taking too long. Could there be something wrong?");
+  }
+
   onInit() {
     console.log("FreeAtHomeApi has been inited");
   }
@@ -73,26 +91,28 @@ export class FreeAtHomeApi extends Homey.SimpleClass implements Subscriber {
    * @param message
    */
   async broadcastMessage(message: BroadcastMessage) {
-    console.log("Received a message: ", JSON.stringify(message));
+    if (this.count === 0) {
+      this._connected = true;
+    }
+
+    console.log("Received a message: ", this.count++, JSON.stringify(message));
     try {
       if (message.type === "error") {
         //TODO: RECONNECT WITH SYSTEM? ERROR HANDLING SOMETHING
-        if (message.result !== null && message.result.name === "TimeoutError"){
-          this.stop().then(_ => this.start()) // consider timeouts and stuff
+        if (message.result !== null && message.result.name === "TimeoutError") {
+          this.stop().then(_ => this.start()); // consider timeouts and stuff
         } else {
           this.stop();
           // NO emitting?
           // this.emit("disconnected", message);
         }
       } else if (message.type === "update") {
-
         await this._onUpdate(message);
         // No emitting?
         // this.emit("update", message.result);
-
       }
     } catch (e) {
-      console.error("Could not process received broadcastMessage", e)
+      this.error("Could not process received broadcastMessage", e);
     }
   }
 
@@ -141,14 +161,15 @@ export class FreeAtHomeApi extends Homey.SimpleClass implements Subscriber {
     Object.values(allDevices).forEach(device => {
       Object.entries(device.channels).forEach(([key, channel]) => {
         // @ts-ignore
-        if (channel.functionId === functionId
-        ) {
+        if (channel.functionId === functionId) {
           devices.push(this.internalize(device, key));
         }
       });
     });
 
-    console.log(`Found ${devices.length} devices with functionId ${functionId}`);
+    console.log(
+      `Found ${devices.length} devices with functionId ${functionId}`
+    );
     return devices;
   }
   /**
@@ -160,20 +181,15 @@ export class FreeAtHomeApi extends Homey.SimpleClass implements Subscriber {
     if (this._connected) {
       console.log("Getting device info");
       try {
-        const response = await this.systemAccessPoint.getDeviceData();
-        // console.log(response);
-        // this.state = response;
-        return response;
+        return await this.systemAccessPoint.getDeviceData();
       } catch (e) {
-        console.error("Error getting device data", e);
-        // this.state = {}; // TODO Should we clear state on error?
-        return {};
+        this.error("Error getting device data", e);
+        return {}; // TODO Should we clear state on error?
       }
     } else {
       console.log("Not connected to system access point");
-      return {}
+      return {};
     }
-
   }
 
   /**
@@ -207,7 +223,7 @@ export class FreeAtHomeApi extends Homey.SimpleClass implements Subscriber {
 
     console.log("Enabling polling...");
     this.pollInterval = setInterval(() => {
-      this._onPoll()
+      this._onPoll();
     }, this.POLL_INTERVAL);
     await this._onPoll();
   }
@@ -229,8 +245,7 @@ export class FreeAtHomeApi extends Homey.SimpleClass implements Subscriber {
     this.updateBroadcast = false;
   }
 
-
-  private async _onUpdate(message: BroadcastMessage){
+  private async _onUpdate(message: BroadcastMessage) {
     if (this._updating) {
       //Queue update
       this.queuedUpdates.push(message);
@@ -244,36 +259,38 @@ export class FreeAtHomeApi extends Homey.SimpleClass implements Subscriber {
     deviceUpdates += await this.processUpdate(message);
 
     let update = this.queuedUpdates.pop();
-    while(update !== undefined){
-      console.log("processing another update");
+    while (update !== undefined) {
       deviceUpdates += await this.processUpdate(update);
       updatesMessages++;
 
       update = this.queuedUpdates.pop();
     }
 
-    console.log(`Processed ${updatesMessages} updates, and ${deviceUpdates} times a device was updated`);
+    console.log(
+      `Processed ${updatesMessages} updates, and ${deviceUpdates} times a device was updated`
+    );
     this._updating = false;
   }
 
   private async processUpdate(message: BroadcastMessage) {
     const promises = [];
     Object.entries(message.result).forEach(([serialNumber, deviceUpdate]) => {
-
       // match to all devices in this.devices
       this.devices.forEach((device, uniqueId) => {
         if (serialNumber === device.serialNumber) {
           console.log(`Processing update for ${serialNumber}`);
-          promises.push(device.onUpdate({
-                device, deviceUpdate
-              })
-          )
+          promises.push(
+            device.onUpdate({
+              device,
+              deviceUpdate
+            })
+          );
         }
-      })
+      });
     });
 
     await Promise.all(promises);
-    return promises.length
+    return promises.length;
   }
   private async _onPoll() {
     if (this._polling) return;
@@ -284,7 +301,11 @@ export class FreeAtHomeApi extends Homey.SimpleClass implements Subscriber {
       let state = await this.getAllDevices();
       const promises = [];
 
-      console.log(`State: ${Object.entries(state).length}, registered devices : ${Object.entries(this.devices).length}`);
+      console.log(
+        `State: ${Object.entries(state).length}, registered devices : ${
+          Object.entries(this.devices).length
+        }`
+      );
       this.devices.forEach((_, uniqueId) => {
         // devices --> map <string, {type, onPoll, onError}>
         console.log(`Syncing full state for device ${uniqueId}`);
@@ -303,7 +324,7 @@ export class FreeAtHomeApi extends Homey.SimpleClass implements Subscriber {
       console.log(`Awaiting state sync for ${promises.length} devices`);
       await Promise.all(promises);
     } catch (err) {
-      console.error("Error occured during polling", err);
+      this.error("Error occured during polling", err);
       for (let serialNumber in this.devices) {
         const { onError } = this.devices[serialNumber];
         onError(err);
@@ -316,12 +337,15 @@ export class FreeAtHomeApi extends Homey.SimpleClass implements Subscriber {
 
   private async safeStateSync(onPoll, device, uniqueId) {
     try {
-        await onPoll({
-          id: uniqueId,
-          deviceState: device
-        })
+      await onPoll({
+        id: uniqueId,
+        deviceState: device
+      });
     } catch (err) {
-      console.error(`Error during OnPoll state sync for device ${device.uniqueId}`, err);
+      this.error(
+        `Error during OnPoll state sync for device ${device.uniqueId}`,
+        err
+      );
     }
   }
 
@@ -341,23 +365,23 @@ export class FreeAtHomeApi extends Homey.SimpleClass implements Subscriber {
     if (!deviceChannel) throw new FreeAtHomeError("invalid_device_channel");
 
     const uniqueId = `${serialNumber}-${channel}`;
-    this.devices.set(uniqueId,
-        {
-          serialNumber,
-          channel,
-          onPoll,
-          onUpdate,
-          onError
-        });
+    this.devices.set(uniqueId, {
+      serialNumber,
+      channel,
+      onPoll,
+      onUpdate,
+      onError
+    });
 
     if (onPoll) await this.enablePolling();
     if (onUpdate) await this.enableUpdates();
 
-
-    console.log(`Registered ${serialNumber} ${channel}. Total nr of device: ${this.devices.size} `);
+    console.log(
+      `Registered ${serialNumber} ${channel}. Total nr of device: ${this.devices.size} `
+    );
     return {
       id: uniqueId,
-      deviceState: device,
+      deviceState: device
     };
   }
 
