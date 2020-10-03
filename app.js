@@ -7,7 +7,6 @@ class FreeAtHome extends Homey.App {
   async onInit() {
     this.log(`${Homey.app.manifest.id} is running...`);
     this.logger = new Logger(); // [logName] [, logLength]
-    this.apiConnected = false;
     this.sysAp = undefined;
 
     process.on("uncaughtException", err => {
@@ -32,7 +31,6 @@ class FreeAtHome extends Homey.App {
     Homey.ManagerSettings.on("set", async () => {
       this.log("Settings were updated");
       await this._api.stop();
-      this.apiConnected = false;
       await this._startSysAp();
     });
   }
@@ -45,12 +43,16 @@ class FreeAtHome extends Homey.App {
       password: conf.password,
       hostname: conf.host
     });
-
-    this.apiConnected = true;
     this.log("Started the freeathome api");
     return this._api;
   }
 
+  async _attemptRestartSysAp() {
+    // This should probably move to the api itself, right?
+    // await this._api.stop();
+    // await this._startSysAp();
+    // Do something with registration?
+  }
   async _startSysAp() {
     const startSysApConnection = this._startSysApConnection();
 
@@ -63,7 +65,14 @@ class FreeAtHome extends Homey.App {
     return await startSysApConnection;
   }
 
-  async getSysAp() {
+  async registerDevice(request) {
+    if (this.sysAp === undefined) {
+      this.log("rejecting the 'this.sysAP'-promise right now");
+    }
+
+    await this._api.registerDevice(request);
+  }
+  async getFreeAtHomeApi(ensureConnected = true) {
     if (this.sysAp === undefined) {
       return new Promise((_, reject) => {
         this.log("rejecting the 'this.sysAP'-promise right now");
@@ -73,7 +82,17 @@ class FreeAtHome extends Homey.App {
       });
     }
 
-    return this.sysAp;
+    if (ensureConnected) {
+      // Do something with a timeout?
+      if (!this._api.connected) {
+        await this._attemptRestartSysAp();
+        // await this._api.stop();
+        // await this._startSysAp();
+      }
+      return this.sysAp;
+    } else {
+      return new Promise(res => res(this._api));
+    }
   }
 
   // ============================================================

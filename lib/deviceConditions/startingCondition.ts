@@ -2,6 +2,7 @@ import Homey from "homey";
 import { FreeAtHomeDevice } from "../freeAtHomeDevice";
 import { FreeAtHomeDeviceCondition } from "./freeAtHomeDeviceCondition";
 import { FreeAtHomeDeviceConditionBehaviour } from "./freeAtHomeDeviceConditionBehaviour";
+import { DeviceRegistrationRequest } from "../freeAtHomeApi";
 
 export class StartingCondition implements FreeAtHomeDeviceConditionBehaviour {
   get condition(): FreeAtHomeDeviceCondition {
@@ -24,31 +25,31 @@ export class StartingCondition implements FreeAtHomeDeviceConditionBehaviour {
     // this.api = await this.getApi();
     // this.log("... Fetched 'api'");
 
-    /* TODO: Rewrite registerDevice to:
+    /* TODO: Rewrite registerDeviceOLD to:
               - add device to list,
               - return immediately indicating unknown device state and,
               - put errors in error signal if device does not exist in freeathome after connection is established
          */
-    try {
-      const { deviceState: initialDeviceState } = await (await device.getApi(
-        true
-      )).registerDevice({
-        serialNumber: device.deviceId,
-        channel: device.deviceChannel,
-        onPoll: device.onPoll.bind(device),
-        onUpdate: device.onUpdate.bind(device),
-        onError: device.onError.bind(device)
-      });
+    let request: DeviceRegistrationRequest = {
+      serialNumber: device.deviceId,
+      channel: device.deviceChannel,
+      onPoll: device.onPoll.bind(device),
+      onUpdate: device.onUpdate.bind(device),
+      onError: device.onError.bind(device)
+    };
 
-      device.onFreeAtHomeInit();
-      device.setAvailable().catch(device.error);
+    const freeAtHomeApi = await Homey.app.getFreeAtHomeApi(false);
+    await freeAtHomeApi.registerDevice(request);
 
-      device.transitionToDeviceCondition(FreeAtHomeDeviceCondition.LOADING); // FIXME Hack to go from start -- loading -- active
-      device.onPoll(initialDeviceState);
-    } catch (e) {
-      device.error("Could not register device with FreeAtHome", e);
-      device.transitionToDeviceCondition(FreeAtHomeDeviceCondition.ERROR);
-    }
+    // const { deviceState: initialDeviceState } = await (await device.getApi(
+    //   true
+    // )).registerDeviceOLD(request);
+
+    device.onFreeAtHomeInit();
+    // device.setAvailable().catch(device.error);
+
+    await device.transitionToDeviceCondition(FreeAtHomeDeviceCondition.LOADING); // FIXME Hack to go from start -- loading -- active
+    // device.onPoll(initialDeviceState);
   }
 
   async onError(

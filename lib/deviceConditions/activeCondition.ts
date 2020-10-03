@@ -7,9 +7,9 @@ export class ActiveCondition implements FreeAtHomeDeviceConditionBehaviour {
     return FreeAtHomeDeviceCondition.ACTIVE;
   }
 
-  async enterState(freeAtHomeDevice: FreeAtHomeDevice): Promise<void> {
+  async enterState(device: FreeAtHomeDevice): Promise<void> {
     // Set active state or something
-    await freeAtHomeDevice.setAvailable();
+    await device.setAvailable();
   }
 
   async onError(

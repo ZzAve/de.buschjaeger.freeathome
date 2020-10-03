@@ -8,7 +8,8 @@ import { ErrorCondition } from "./deviceConditions/errorCondition";
 import { LoadingCondition } from "./deviceConditions/loadingCondition";
 import { StartingCondition } from "./deviceConditions/startingCondition";
 
-class FreeAtHomeDeviceBase extends Homey.Device implements FreeAtHomeDevice {
+abstract class FreeAtHomeDeviceBase extends Homey.Device
+  implements FreeAtHomeDevice {
   private _deviceCondition: FreeAtHomeDeviceConditionBehaviour = new StartingCondition();
 
   // Good idea to go public?
@@ -20,7 +21,7 @@ class FreeAtHomeDeviceBase extends Homey.Device implements FreeAtHomeDevice {
   // this method is called when the Device is inited
   async onInit() {
     this.log(`Device starting: ${this.getName()}`);
-    let settings = await this.getSettings();
+    const settings = await this.getSettings();
     this.debug(`Device settings:`, settings);
 
     // Set values
@@ -36,13 +37,13 @@ class FreeAtHomeDeviceBase extends Homey.Device implements FreeAtHomeDevice {
 
   onFreeAtHomeInit() {}
 
-  setCapabilitySafely(value, capability) {
+  async setCapabilitySafely(value, capability) {
     try {
       this.log(
         `${this.id}|${this.getName()} Setting ${capability} to ${value}`
       );
-      this.setCapabilityValue(capability, value).catch(this.error);
-      this.setAvailable().catch(this.error);
+      await this.setCapabilityValue(capability, value).catch(this.error);
+      await this.setAvailable().catch(this.error);
     } catch (e) {
       this.onError(`Something went wrong trying to update ${this.id}`, e);
       // this.transitionToDeviceCondition(new ErrorCondition());
@@ -77,13 +78,13 @@ class FreeAtHomeDeviceBase extends Homey.Device implements FreeAtHomeDevice {
     api.unregisterDevice({ uniqueId: this.id });
   }
 
-  onPollCallback(fullDeviceState) {}
+  abstract onPollCallback(fullDeviceState);
 
   async onPoll(fullDeviceState) {
     await this._deviceCondition.onPoll(this, fullDeviceState);
   }
 
-  onUpdateCallback(deviceUpdate) {}
+  abstract onUpdateCallback(deviceUpdate);
 
   async onUpdate(deviceUpdate) {
     await this._deviceCondition.onUpdate(this, deviceUpdate);
@@ -111,7 +112,7 @@ class FreeAtHomeDeviceBase extends Homey.Device implements FreeAtHomeDevice {
   async getApi(retry = true) {
     try {
       this.debug(`Tryin to get a hold of sysAP API (retry ${retry})`);
-      return await Homey.app.getSysAp();
+      return await Homey.app.getFreeAtHomeApi();
     } catch (e) {
       this.error("Could not get get FreeAtHome API reference.", e);
 

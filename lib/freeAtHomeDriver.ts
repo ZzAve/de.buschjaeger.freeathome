@@ -8,7 +8,7 @@ class FreeAtHomeDriver extends Homey.Driver {
 
   async onInit() {
     this.onInitFlow();
-    this.api = await Homey.app.getSysAp();
+    this.api = await Homey.app.getFreeAtHomeApi();
 
     this.devicesPromise = Promise.resolve([]);
 
@@ -112,6 +112,47 @@ class FreeAtHomeDriver extends Homey.Driver {
   private async discoverDevicesByFunction(functionId) {
     this.log(`Getting all devices of functionId ${functionId}`);
     return await this.api.getDevicesByFunctionId(functionId);
+  }
+
+  /**
+   *
+   * @returns {Promise<{data: {channel: string, id: string, deviceId: string}, name: *}[]>}
+   * @param functionId
+   */
+  async getDevicesByFunctionId(functionId) {
+    const allDevices: Map<string, any> = await this.api.getAllDevices();
+
+    let devices = [];
+    // Extract from each channel
+    Object.values(allDevices).forEach(device => {
+      Object.entries(device.channels).forEach(([key, channel]) => {
+        // @ts-ignore
+        if (channel.functionId === functionId) {
+          devices.push(this.internalize(device, key));
+        }
+      });
+    });
+
+    this.log(`Found ${devices.length} devices with functionId ${functionId}`);
+    return devices;
+  }
+
+  private internalize(externalDevice, channel) {
+    this.log(`Internalizing (channel ${channel}`, externalDevice);
+
+    return {
+      name: externalDevice.channels[channel]["displayName"],
+      // 'name': `${externalDevice.serialNumber}-${channel}`,
+      data: {
+        id: `${externalDevice.serialNumber}-${channel}`,
+        deviceId: externalDevice.serialNumber,
+        serialNumber: externalDevice.serialNumber,
+        channel: channel,
+        functionId: externalDevice.channels[channel].functionId,
+        floor: externalDevice.channels[channel]["floor"],
+        room: externalDevice.channels[channel].room
+      }
+    };
   }
 }
 
