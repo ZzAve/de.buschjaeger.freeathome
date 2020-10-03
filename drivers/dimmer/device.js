@@ -1,6 +1,6 @@
 // const Homey = require("homey");
 const { safe } = require("../../lib/util");
-const FreeAtHomeDevice = require("../../lib/freeAtHomeDevice");
+const { FreeAtHomeDevice } = require("../../lib/freeAtHomeDevice");
 
 class Dimmer extends FreeAtHomeDevice {
   // this method is called when the Device is inited
@@ -48,15 +48,11 @@ class Dimmer extends FreeAtHomeDevice {
     await Promise.all(promises)
   }
 
-  onPoll(fullDeviceState) {
-  	super.onPoll(...arguments);
-
+  onPollCallback(fullDeviceState) {
     this._updateState(safe(fullDeviceState).deviceState);
   }
 
-  onUpdate(changedState) {
-  	super.onUpdate(...arguments);
-
+  onUpdateCallback(changedState) {
     this._updateState(safe(changedState).deviceUpdate);
   }
 
@@ -77,9 +73,8 @@ class Dimmer extends FreeAtHomeDevice {
     }
   }
 
-  onError(e) {
-    super.onError(...arguments);
-    this.error("some error", e);
+  onErrorCallback(message, cause) {
+    this.error("some error", message);
   }
 }
 

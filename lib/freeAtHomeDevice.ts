@@ -7,6 +7,20 @@ const capabilityMapping = {
   windowcoverings_state: "idp0001"
 };
 
+
+/*
+  DeviceStates / Conditions:
+  - Starting
+  - Loading
+  - Active
+  - Error
+ */
+enum FreeAtHomeDeviceCondition {
+  STARTING = "STARTING",
+  LOADING = "LOADING",
+  ACTIVE = "ACTIVE",
+  ERROR = "ERROR"
+}
 const DEBUG_ENABLED = false;
 
 class FreeAtHomeDevice extends Homey.Device {
@@ -90,16 +104,22 @@ class FreeAtHomeDevice extends Homey.Device {
     api.unregisterDevice({ uniqueId: this.id });
   }
 
-  onPoll({ device }) {
+  abstract onPollCallback(fullDeviceState);
+  onPoll(fullDeviceState) {
     this.setAvailable().catch(this.error);
+    this.onPollCallback(fullDeviceState);
   }
 
-  onUpdate({ device }) {
+  abstract onUpdateCallback(deviceUpdate);
+  onUpdate(deviceUpdate) {
     this.setAvailable().catch(this.error);
+    this.onUpdateCallback(deviceUpdate);
   }
 
-  onError(err, exception) {
-    this.setUnavailable(err).catch(this.error);
+  abstract onErrorCallback(message, cause);
+  onError(message, cause) {
+    this.setUnavailable(message).catch(this.error);
+    this.onErrorCallback(message, cause);
   }
 
   async getApi(retry = true) {
@@ -130,4 +150,7 @@ class FreeAtHomeDevice extends Homey.Device {
   }
 }
 
-module.exports = FreeAtHomeDevice;
+module.exports = {
+  FreeAtHomeDevice,
+  FreeAtHomeDeviceCondition
+};
