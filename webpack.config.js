@@ -33,13 +33,13 @@ const appConfig = (env, argv) => {
       __BUILD: JSON.stringify(process.env.TRAVIS_BUILD_NUMBER)
     }),
 
-    // source-map is wrong for typescript code but better than nothing
-    PRODUCTION
-      ? new webpack.SourceMapDevToolPlugin({
-          filename: "[file].map",
-          publicPath: `https://raw.githubusercontent.com/zzave/de.buschjaeger.freeathome/release/v${package.version}/`
-        })
-      : null,
+    // // source-map is wrong for typescript code but better than nothing
+    // PRODUCTION
+    //   ? new webpack.SourceMapDevToolPlugin({
+    //       filename: "[file].map",
+    //       publicPath: `https://raw.githubusercontent.com/zzave/de.buschjaeger.freeathome/release/v${package.version}/`
+    //     })
+    //   : null,
 
     new CleanWebpackPlugin(),
     new CopyWebpackPlugin({
@@ -47,8 +47,7 @@ const appConfig = (env, argv) => {
         {
           from: "./tmp/app.json",
           to: distPath
-        }
-        ,
+        },
         {
           from: "./*.md",
           to: distPath
@@ -130,7 +129,7 @@ const appConfig = (env, argv) => {
       libraryTarget: "commonjs2"
     },
 
-    devtool: PRODUCTION ? false : "cheap-module-eval-source-map",
+    devtool: PRODUCTION ? false : "eval-source-map",
 
     externals: {
       homey: "homey",

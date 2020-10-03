@@ -1,9 +1,10 @@
 "use strict";
 
+import Homey from "homey";
 import { BroadcastMessage } from "freeathome-api/dist/lib/BroadcastMessage";
 import { ClientConfiguration, SystemAccessPoint } from "freeathome-api";
 import { Subscriber } from "freeathome-api/dist/lib/Subscriber";
-import { delay, Homey, Queue } from "./util";
+import { delay, Queue } from "./util";
 
 class FreeAtHomeError extends Error {}
 
@@ -172,6 +173,7 @@ export class FreeAtHomeApi extends Homey.SimpleClass implements Subscriber {
     );
     return devices;
   }
+
   /**
    * TODO : error handling
    * TODO: short lived cache
@@ -292,6 +294,7 @@ export class FreeAtHomeApi extends Homey.SimpleClass implements Subscriber {
     await Promise.all(promises);
     return promises.length;
   }
+
   private async _onPoll() {
     if (this._polling) return;
     this._polling = true;

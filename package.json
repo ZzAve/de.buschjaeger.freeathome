@@ -33,7 +33,8 @@
   "scripts": {
     "prehomey2": "npm run build && sh prepare.sh && cd dist && npm ci --production && cd ../",
     "prehomey": "npm run build && sh prepare.sh && cd dist && npm i --production && cd ../",
-    "build": "tsc",
+    "clean": "rm -rf dist/",
+    "build": "npm run build:dev",
     "build:dev": "webpack --mode=development",
     "build:pro": "webpack --mode=production",
     "yolo": "homey app run -p dist",

@@ -1,116 +1,118 @@
-import {Homey} from "./util";
+import Homey from "homey";
+
 // import {freeAtHomeIcons} from "./icons";
 
 class FreeAtHomeDriver extends Homey.Driver {
-    async onInit() {
-        this.onInitFlow();
-        this.api = await Homey.app.getSysAp();
+  private api: any;
+  private devicesPromise: Promise<any[]>;
 
-        this.devicesPromise = Promise.resolve([]);
+  async onInit() {
+    this.onInitFlow();
+    this.api = await Homey.app.getSysAp();
 
-        // this.setupIcons();
-    }
+    this.devicesPromise = Promise.resolve([]);
 
-    // setupIcons(){
-    //     // Define the current version, Add for future backwards compatibility checks
-    //     // this.version = 21704;
-    //
-    //     // Define the current application root directory by its relative path from the driver.
-    //     this.appPath = '../../../';
-    //
-    //     // Set the path to our icons - note in order to be useful its relative.
-    //     this.assetPath = '/app/' + Homey.manifest.id + '/assets/icons/';
-    //
-    //     // Assign the i18n title @todo full i18n integration Homey.__("hello", { "name": "Dave" })
-    //     // this.name = Homey.__('category.' + this.class + '.title') + ' < ' + Homey.__('_.group') + ' >';
-    //
-    //     this.icons =  {};
-    //
-    //     // If the icons have been assigned use them otherwise default.
-    //     if (freeAtHomeIcons.length) {
-    //         // Loop through and add all of the category icons.
-    //         for (let i in freeAtHomeIcons) {
-    //             this.icons[this.assetPath + freeAtHomeIcons[i].relativePath] = this.appPath + 'assets/icons/categories/' + freeAtHomeIcons[i].relativePath;
-    //         }
-    //
-    //     // } else {
-    //
-    //         // Add the category icon
-    //         // this.icons['/app/' + Homey.manifest.id + '/drivers/' + this.class + '/assets/icon.svg'] =  'icon.svg';
-    //     }
-    //
-    //     // Add the default icon.
-    //     this.icons['/app/' + Homey.manifest.id + '/assets/icon.svg'] = this.appPath + '/assets/icon.svg';
-    // }
+    // this.setupIcons();
+  }
 
-    onInitFlow() {
-        //overload me
-    }
+  // setupIcons(){
+  //     // Define the current version, Add for future backwards compatibility checks
+  //     // this.version = 21704;
+  //
+  //     // Define the current application root directory by its relative path from the driver.
+  //     this.appPath = '../../../';
+  //
+  //     // Set the path to our icons - note in order to be useful its relative.
+  //     this.assetPath = '/app/' + Homey.manifest.id + '/assets/icons/';
+  //
+  //     // Assign the i18n title @todo full i18n integration Homey.__("hello", { "name": "Dave" })
+  //     // this.name = Homey.__('category.' + this.class + '.title') + ' < ' + Homey.__('_.group') + ' >';
+  //
+  //     this.icons =  {};
+  //
+  //     // If the icons have been assigned use them otherwise default.
+  //     if (freeAtHomeIcons.length) {
+  //         // Loop through and add all of the category icons.
+  //         for (let i in freeAtHomeIcons) {
+  //             this.icons[this.assetPath + freeAtHomeIcons[i].relativePath] = this.appPath + 'assets/icons/categories/' + freeAtHomeIcons[i].relativePath;
+  //         }
+  //
+  //     // } else {
+  //
+  //         // Add the category icon
+  //         // this.icons['/app/' + Homey.manifest.id + '/drivers/' + this.class + '/assets/icon.svg'] =  'icon.svg';
+  //     }
+  //
+  //     // Add the default icon.
+  //     this.icons['/app/' + Homey.manifest.id + '/assets/icon.svg'] = this.appPath + '/assets/icon.svg';
+  // }
 
-    onPair(socket) {
-        this.log("Called on pair with ", socket);
-        this.devicesPromise = this.discoverDevicesByFunction(this.getFunctionId());
+  onInitFlow() {
+    //overload me
+  }
 
-        let selectedDevices = [];
+  onPair(socket) {
+    this.log("Called on pair with ", socket);
+    this.devicesPromise = this.discoverDevicesByFunction(this.getFunctionId());
 
-        socket.on("list_devices", async (data, callback) => {
-            // emit when devices are still being searched
-            socket.emit("list_devices", []);
+    let selectedDevices = [];
 
-            // fire the callback when searching is done
-            callback(null, await this.devicesPromise);
+    socket.on("list_devices", async (data, callback) => {
+      // emit when devices are still being searched
+      socket.emit("list_devices", []);
 
-            // when no devices are found, return an empty array
-            // callback( null, [] );
+      // fire the callback when searching is done
+      callback(null, await this.devicesPromise);
 
-            // or fire a callback with Error to show that instead
-            // callback( new Error('Something bad has occured!') );
-        });
+      // when no devices are found, return an empty array
+      // callback( null, [] );
 
-        socket.on("list_devices_selection", async (data, callback) => {
-            this.log("List_device_selection", data);
-            selectedDevices = data;
+      // or fire a callback with Error to show that instead
+      // callback( new Error('Something bad has occured!') );
+    });
 
-            callback(null, data);
-        });
+    socket.on("list_devices_selection", async (data, callback) => {
+      this.log("List_device_selection", data);
+      selectedDevices = data;
 
-        socket.on("addClass", async (data, callback) => {
-            this.log("addClass", data);
+      callback(null, data);
+    });
 
-            selectedDevices.map(it => {
-                it.icon = data.icon;
-                return it;
-            });
+    socket.on("addClass", async (data, callback) => {
+      this.log("addClass", data);
 
-            // socket.emit("")
+      selectedDevices.map(it => {
+        it.icon = data.icon;
+        return it;
+      });
 
-            callback(null, selectedDevices)
-        });
+      // socket.emit("")
 
-        socket.on("icons.initialised", async (data, callback) => {
+      callback(null, selectedDevices);
+    });
 
-        });
+    socket.on("icons.initialised", async (data, callback) => {});
 
-        socket.on("freeathome.devicesPrepared", async (data, callback) => {
-            this.log("Received devicesPrepared", data);
-            callback(null, {devices: selectedDevices});
-        });
+    socket.on("freeathome.devicesPrepared", async (data, callback) => {
+      this.log("Received devicesPrepared", data);
+      callback(null, { devices: selectedDevices });
+    });
 
-        socket.on("freeathome.devicesFinalised", async (data, callback) => {
-            this.log("Received devicesFinalised", data);
-            selectedDevices = [];
-            callback(null, true);
-        });
-    }
+    socket.on("freeathome.devicesFinalised", async (data, callback) => {
+      this.log("Received devicesFinalised", data);
+      selectedDevices = [];
+      callback(null, true);
+    });
+  }
 
-    getFunctionId() {
-        // overload me
-    }
+  getFunctionId() {
+    // overload me
+  }
 
-    private async discoverDevicesByFunction(functionId) {
-        this.log(`Getting all devices of functionId ${functionId}`);
-        return await this.api.getDevicesByFunctionId(functionId)
-    }
+  private async discoverDevicesByFunction(functionId) {
+    this.log(`Getting all devices of functionId ${functionId}`);
+    return await this.api.getDevicesByFunctionId(functionId);
+  }
 }
 
 module.exports = FreeAtHomeDriver;

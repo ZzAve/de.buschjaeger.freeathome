@@ -1,10 +1,7 @@
+const FreeAtHomeDeviceBase = require("../../lib/freeAtHomeDeviceBase");
 const { safe } = require("../../lib/util");
-const {
-  FreeAtHomeDevice,
-  FreeAtHomeDeviceCondition
-} = require("../../lib/freeAtHomeDevice");
 
-class SwitchDevice extends FreeAtHomeDevice {
+class SwitchDevice extends FreeAtHomeDeviceBase {
   // this method is called when the Device is inited
   onFreeAtHomeInit() {
     // register a capability listener
@@ -13,10 +10,9 @@ class SwitchDevice extends FreeAtHomeDevice {
 
   // this method is called when the Device has requested a state change (turned on or off)
   async onCapabilityOnoff(value, opts) {
-    await this.handleCapability(+value, {}, "onoff")
-      .then(_ => {
-        this.setCapabilityValue("onoff", value).catch(this.error);
-      });
+    await this.handleCapability(+value, {}, "onoff").then(_ => {
+      this.setCapabilityValue("onoff", value).catch(this.error);
+    });
   }
 
   onPollCallback(fullDeviceState) {

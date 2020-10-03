@@ -1,7 +1,7 @@
 const { safe } = require("../../lib/util");
-const { FreeAtHomeDevice } = require("../../lib/freeAtHomeDevice");
+const FreeAtHomeDeviceBase = require("../../lib/freeAtHomeDeviceBase");
 
-class Blind extends FreeAtHomeDevice {
+class Blind extends FreeAtHomeDeviceBase {
   // this method is called when the Device is inited
   onFreeAtHomeInit() {
     const capabilities = this.getCapabilities();
