@@ -28,7 +28,7 @@ export class FreeAtHomeApi extends Homey.SimpleClass implements Subscriber {
 
   constructor() {
     super();
-    console.log("Creating freeathome instance");
+    this.log("Creating freeathome instance");
     this._connected = false;
     this.devices = new Map<string, any>();
     this.queuedUpdates = new Queue();

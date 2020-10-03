@@ -19,5 +19,29 @@
       "id": "freeathome",
       "$template": "freeathome"
     }
+  ],
+  "settings": [
+    {
+      "type": "group",
+      "label": {
+        "en": "General settings",
+        "nl": "Algemene instellingen"
+      },
+      "children": [
+        {
+          "id": "debug_log",
+          "type": "checkbox",
+          "label": {
+            "en": "Debug logs",
+            "nl": "Debug logs"
+          },
+          "value": false,
+          "hint": {
+            "en": "Register debug logs for this device. These will show up in the app's settings",
+            "nl": "Wegschrijven van debug logs for dit apparaat. De logs zijn te vinden in de app instelling"
+          }
+        }
+      ]
+    }
   ]
 }

@@ -8,8 +8,6 @@ import { ErrorCondition } from "./deviceConditions/errorCondition";
 import { LoadingCondition } from "./deviceConditions/loadingCondition";
 import { StartingCondition } from "./deviceConditions/startingCondition";
 
-const DEBUG_ENABLED = true;
-
 class FreeAtHomeDeviceBase extends Homey.Device implements FreeAtHomeDevice {
   private _deviceCondition: FreeAtHomeDeviceConditionBehaviour = new StartingCondition();
 
@@ -17,12 +15,17 @@ class FreeAtHomeDeviceBase extends Homey.Device implements FreeAtHomeDevice {
   public deviceId: string;
   public id: string;
   public deviceChannel: string;
+  private debugLog: boolean;
 
   // this method is called when the Device is inited
   async onInit() {
     this.log(`Device starting: ${this.getName()}`);
+    let settings = await this.getSettings();
+    this.debug(`Device settings:`, settings);
 
     // Set values
+    this.debugLog = settings["debug_log"] === true;
+
     const { deviceId: serialNumber, channel, id } = this.getData();
     this.deviceId = serialNumber;
     this.deviceChannel = channel;
@@ -33,7 +36,7 @@ class FreeAtHomeDeviceBase extends Homey.Device implements FreeAtHomeDevice {
 
   onFreeAtHomeInit() {}
 
-  setStateSafely(value, capability) {
+  setCapabilitySafely(value, capability) {
     try {
       this.log(
         `${this.id}|${this.getName()} Setting ${capability} to ${value}`
@@ -76,20 +79,33 @@ class FreeAtHomeDeviceBase extends Homey.Device implements FreeAtHomeDevice {
 
   onPollCallback(fullDeviceState) {}
 
-  onPoll(fullDeviceState) {
-    this._deviceCondition.onPoll(this, fullDeviceState);
+  async onPoll(fullDeviceState) {
+    await this._deviceCondition.onPoll(this, fullDeviceState);
   }
 
   onUpdateCallback(deviceUpdate) {}
 
-  onUpdate(deviceUpdate) {
-    this._deviceCondition.onUpdate(this, deviceUpdate);
+  async onUpdate(deviceUpdate) {
+    await this._deviceCondition.onUpdate(this, deviceUpdate);
   }
 
   onErrorCallback(message, cause) {}
 
-  onError(message, cause) {
-    this._deviceCondition.onError(this, message, cause);
+  async onError(message, cause) {
+    await this._deviceCondition.onError(this, message, cause);
+  }
+
+  async onSettings(
+    oldSettings: any,
+    newSettings: any,
+    changedKeys: any[]
+  ): Promise<string | void> {
+    this.debug("Settings have changed", oldSettings, newSettings, changedKeys);
+    if (changedKeys.includes("debug_log")) {
+      this.debugLog = newSettings["debug_log"] === true;
+    }
+
+    return Promise.resolve(Homey.__("device_settings_updated"));
   }
 
   async getApi(retry = true) {
@@ -135,8 +151,7 @@ class FreeAtHomeDeviceBase extends Homey.Device implements FreeAtHomeDevice {
   }
 
   debug(...args: any[]): void {
-    // TODO: Make me a device setting rather than a global one
-    if (DEBUG_ENABLED) {
+    if (this.debugLog) {
       this.log("[DEBUG]", ...args);
     }
   }

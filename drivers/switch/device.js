@@ -29,7 +29,7 @@ class SwitchDevice extends FreeAtHomeDeviceBase {
     const onoff = data["odp0000"];
 
     if ("value" in onoff) {
-      this.setStateSafely(!!+onoff.value, "onoff");
+      this.setCapabilitySafely(!!+onoff.value, "onoff");
     }
   }
 

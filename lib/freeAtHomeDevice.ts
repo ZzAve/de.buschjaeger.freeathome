@@ -8,7 +8,7 @@ export interface FreeAtHomeDevice extends Homey.Device {
   onInit();
   onFreeAtHomeInit();
 
-  setStateSafely(value, capability);
+  setCapabilitySafely(value, capability);
 
   /**
    * Handle incoming changes from Homey to actual device

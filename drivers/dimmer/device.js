@@ -70,11 +70,11 @@ class Dimmer extends FreeAtHomeDeviceBase {
     const dim = data["odp0001"];
 
     if ("value" in onoff) {
-      this.setStateSafely(!!+onoff.value, "onoff");
+      this.setCapabilitySafely(!!+onoff.value, "onoff");
     }
 
     if ("value" in dim) {
-      this.setStateSafely(+dim.value / 100.0, "dim");
+      this.setCapabilitySafely(+dim.value / 100.0, "dim");
     }
   }
 

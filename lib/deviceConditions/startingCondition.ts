@@ -12,6 +12,8 @@ export class StartingCondition implements FreeAtHomeDeviceConditionBehaviour {
     // When entering the starting state, the goal is to register with freeAtHome, and than go in loading state
     await device.setUnavailable(Homey.__("starting"));
 
+    // device.debugLog = device.getSetting("log.level.debug") === true;
+
     // TODO Startup behaviour
     // Disable device
     // Get current status

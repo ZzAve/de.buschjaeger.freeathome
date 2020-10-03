@@ -131,7 +131,7 @@ class Blind extends FreeAtHomeDeviceBase {
       this.log(
         `Setting ${this.id}  windowcoverings_set to ${convertedValue} (derived from ${locationIndication.value})`
       );
-      this.setStateSafely(convertedValue, "windowcoverings_set");
+      this.setCapabilitySafely(convertedValue, "windowcoverings_set");
     }
 
     if ("value" in movingDirection) {
@@ -140,7 +140,7 @@ class Blind extends FreeAtHomeDeviceBase {
       this.log(
         `Setting ${this.id}  windowcoverings_state to ${convertedDirection} (derived from ${movingDirection.value})`
       );
-      this.setStateSafely(convertedDirection, "windowcoverings_state");
+      this.setCapabilitySafely(convertedDirection, "windowcoverings_state");
     }
   }
 
