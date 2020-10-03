@@ -10,42 +10,49 @@ class Dimmer extends FreeAtHomeDevice {
 
     this.registerMultipleCapabilityListener(
       capabilities,
-      this.onMultipleCapabilities.bind(this)
+      this.onMultipleCapabilities.bind(this),
+      500
     );
   }
 
-  async onMultipleCapabilities(valueObj, optsObj) {
+  onMultipleCapabilities(valueObj, optsObj) {
     this.debug("valueObj", valueObj);
     this.debug("optsObj", optsObj);
 
     const convertedValue = {};
     // Calculate/Convert capabilities value
-    if( typeof valueObj.dim === 'number' ) {
+    if (typeof valueObj.dim === "number") {
       valueObj.onoff = valueObj.dim > 0;
       convertedValue.onoff = +(valueObj.dim > 0);
-      convertedValue.dim = (valueObj.dim * 100).toFixed(0)
-    } else if (typeof valueObj.onoff === 'boolean'){
+      convertedValue.dim = (valueObj.dim * 100).toFixed(0);
+    } else if (typeof valueObj.onoff === "boolean") {
       convertedValue.onoff = +valueObj.onoff;
     }
 
     const promises = [];
-    if (typeof  convertedValue.onoff !== "undefined") {
-      promises.push(this.handleCapability(convertedValue.onoff, optsObj.onoff, "onoff")
-        .then(() => {
+    if (typeof convertedValue.onoff !== "undefined") {
+      promises.push(
+        this.handleCapability(
+          convertedValue.onoff,
+          optsObj.onoff,
+          "onoff"
+        ).then(() => {
           this.setCapabilityValue("onoff", valueObj.onoff).catch(this.error);
         })
       );
     }
 
-    if (typeof convertedValue.dim !== "undefined"){
-      promises.push(this.handleCapability(convertedValue.dim, optsObj.dim, "dim")
-        .then(() => {
-          this.setCapabilityValue("dim", valueObj.dim).catch(this.error);
-        })
+    if (typeof convertedValue.dim !== "undefined") {
+      promises.push(
+        this.handleCapability(convertedValue.dim, optsObj.dim, "dim").then(
+          () => {
+            this.setCapabilityValue("dim", valueObj.dim).catch(this.error);
+          }
+        )
       );
     }
 
-    await Promise.all(promises)
+    return Promise.all(promises);
   }
 
   onPollCallback(fullDeviceState) {
@@ -57,9 +64,7 @@ class Dimmer extends FreeAtHomeDevice {
   }
 
   _updateState(deviceState) {
-    const data = deviceState
-      .channels[this.deviceChannel]
-      .datapoints;
+    const data = deviceState.channels[this.deviceChannel].datapoints;
 
     const onoff = data["odp0000"];
     const dim = data["odp0001"];
