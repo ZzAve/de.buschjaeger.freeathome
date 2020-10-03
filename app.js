@@ -1,6 +1,6 @@
 require("promise.prototype.finally").shim();
 const { Homey } = require("./lib/util");
-const { FreeAtHomeApi } = require("./lib/freeathome");
+const { FreeAtHomeApi } = require("./lib/freeAtHomeApi");
 const Logger = require("./captureLogs.js");
 
 class FreeAtHome extends Homey.App {
