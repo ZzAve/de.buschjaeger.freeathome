@@ -79,7 +79,7 @@ class Dimmer extends FreeAtHomeDeviceBase {
   }
 
   onErrorCallback(message, cause) {
-    this.error("some error", message);
+    // this.error("some error", message);
   }
 }
 

@@ -1,14 +1,15 @@
 import Homey from "homey";
+import { FreeAtHomeApi } from "./freeAtHomeApi";
 
 // import {freeAtHomeIcons} from "./icons";
 
 class FreeAtHomeDriver extends Homey.Driver {
-  private api: any;
+  private api: FreeAtHomeApi;
   private devicesPromise: Promise<any[]>;
 
   async onInit() {
     this.onInitFlow();
-    this.api = await Homey.app.getFreeAtHomeApi();
+    this.api = await Homey.app.getFreeAtHomeApi(false);
 
     this.devicesPromise = Promise.resolve([]);
 
@@ -111,7 +112,7 @@ class FreeAtHomeDriver extends Homey.Driver {
 
   private async discoverDevicesByFunction(functionId) {
     this.log(`Getting all devices of functionId ${functionId}`);
-    return await this.api.getDevicesByFunctionId(functionId);
+    return await this.getDevicesByFunctionId(functionId);
   }
 
   /**
@@ -120,6 +121,7 @@ class FreeAtHomeDriver extends Homey.Driver {
    * @param functionId
    */
   async getDevicesByFunctionId(functionId) {
+    this.log(this.api);
     const allDevices: Map<string, any> = await this.api.getAllDevices();
 
     let devices = [];

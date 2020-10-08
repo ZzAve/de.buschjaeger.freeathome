@@ -12,8 +12,7 @@ export class StartingCondition implements FreeAtHomeDeviceConditionBehaviour {
   async enterState(device: FreeAtHomeDevice): Promise<void> {
     // When entering the starting state, the goal is to register with freeAtHome, and than go in loading state
     await device.setUnavailable(Homey.__("starting"));
-
-    // device.debugLog = device.getSetting("log.level.debug") === true;
+    await device.unsetWarning();
 
     // TODO Startup behaviour
     // Disable device
@@ -26,10 +25,10 @@ export class StartingCondition implements FreeAtHomeDeviceConditionBehaviour {
     // this.log("... Fetched 'api'");
 
     /* TODO: Rewrite registerDeviceOLD to:
-              - add device to list,
-              - return immediately indicating unknown device state and,
-              - put errors in error signal if device does not exist in freeathome after connection is established
-         */
+            - add device to list,
+            - return immediately indicating unknown device state and,
+            - put errors in error signal if device does not exist in freeathome after connection is established
+     */
     let request: DeviceRegistrationRequest = {
       serialNumber: device.deviceId,
       channel: device.deviceChannel,
@@ -38,18 +37,10 @@ export class StartingCondition implements FreeAtHomeDeviceConditionBehaviour {
       onError: device.onError.bind(device)
     };
 
-    const freeAtHomeApi = await Homey.app.getFreeAtHomeApi(false);
-    await freeAtHomeApi.registerDevice(request);
-
-    // const { deviceState: initialDeviceState } = await (await device.getApi(
-    //   true
-    // )).registerDeviceOLD(request);
-
+    await device.registerDevice(request);
     device.onFreeAtHomeInit();
-    // device.setAvailable().catch(device.error);
 
     await device.transitionToDeviceCondition(FreeAtHomeDeviceCondition.LOADING); // FIXME Hack to go from start -- loading -- active
-    // device.onPoll(initialDeviceState);
   }
 
   async onError(
@@ -57,13 +48,12 @@ export class StartingCondition implements FreeAtHomeDeviceConditionBehaviour {
     message: String,
     cause: any
   ): Promise<void> {
-    device.error(message, cause);
+    device.error("Error while in starting state:", message);
     await device.transitionToDeviceCondition(FreeAtHomeDeviceCondition.ERROR);
-    await device.onErrorCallback(message, cause);
+    await device.onError(message, cause);
   }
 
   async onUpdate(device: FreeAtHomeDevice, deviceUpdate): Promise<void> {
-    // FIXME: In starting state, no messages should be received
     device.error(
       "Received update whilst in Starting state! Transitioning to Active"
     );
@@ -72,7 +62,6 @@ export class StartingCondition implements FreeAtHomeDeviceConditionBehaviour {
   }
 
   async onPoll(device: FreeAtHomeDevice, fullDeviceState): Promise<void> {
-    // FIXME: In starting state, no messages should be received
     device.error(
       "Received poll whilst in Starting state! Transitioning to Active"
     );

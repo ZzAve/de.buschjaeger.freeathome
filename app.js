@@ -7,7 +7,7 @@ class FreeAtHome extends Homey.App {
   async onInit() {
     this.log(`${Homey.app.manifest.id} is running...`);
     this.logger = new Logger(); // [logName] [, logLength]
-    this.sysAp = undefined;
+    this._api = undefined;
 
     process.on("uncaughtException", err => {
       this.error(err, "uncought Exception");
@@ -18,7 +18,7 @@ class FreeAtHome extends Homey.App {
 
     Homey.on("unload", () => {
       this.log("app unload called");
-      // save logs to persistant storage
+      // save logs to persistent storage
       this.logger.saveLogs();
     }).on("memwarn", data => {
       this.log("memwarn! ", data);
@@ -30,8 +30,7 @@ class FreeAtHome extends Homey.App {
     // Restart connection to SysAp on settings change
     Homey.ManagerSettings.on("set", async () => {
       this.log("Settings were updated");
-      await this._api.stop();
-      await this._startSysAp();
+      await this._api.restart(0);
     });
   }
 
@@ -43,7 +42,6 @@ class FreeAtHome extends Homey.App {
       password: conf.password,
       hostname: conf.host
     });
-    this.log("Started the freeathome api");
     return this._api;
   }
 
@@ -53,46 +51,24 @@ class FreeAtHome extends Homey.App {
     // await this._startSysAp();
     // Do something with registration?
   }
+
   async _startSysAp() {
-    const startSysApConnection = this._startSysApConnection();
-
-    this.sysAp = new Promise(resolve => {
-      startSysApConnection.then(api => {
-        resolve(api);
-      });
-    });
-
-    return await startSysApConnection;
+    return await this._startSysApConnection();
   }
 
-  async registerDevice(request) {
-    if (this.sysAp === undefined) {
-      this.log("rejecting the 'this.sysAP'-promise right now");
+  getFreeAtHomeApi(ensureConnected = true) {
+    if (this._api === undefined) {
+      this.log("rejecting the 'getFreeAtHomeApi'-promise right now");
+      return Promise.reject(
+        "Requested API connection while booting app. Please hold your horses"
+      );
     }
 
-    await this._api.registerDevice(request);
-  }
-  async getFreeAtHomeApi(ensureConnected = true) {
-    if (this.sysAp === undefined) {
-      return new Promise((_, reject) => {
-        this.log("rejecting the 'this.sysAP'-promise right now");
-        reject(
-          "Requested API connection while booting app. Please hold your horses"
-        );
-      });
+    if (ensureConnected && !this._api.connected) {
+      return Promise.reject("FreeAtHomeApi is not connected atm unfortunately");
     }
 
-    if (ensureConnected) {
-      // Do something with a timeout?
-      if (!this._api.connected) {
-        await this._attemptRestartSysAp();
-        // await this._api.stop();
-        // await this._startSysAp();
-      }
-      return this.sysAp;
-    } else {
-      return new Promise(res => res(this._api));
-    }
+    return Promise.resolve(this._api);
   }
 
   // ============================================================

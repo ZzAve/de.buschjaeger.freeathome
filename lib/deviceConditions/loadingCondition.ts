@@ -19,7 +19,7 @@ export class LoadingCondition implements FreeAtHomeDeviceConditionBehaviour {
   ): Promise<void> {
     device.log(message, cause);
     await device.transitionToDeviceCondition(FreeAtHomeDeviceCondition.ERROR);
-    await device.onErrorCallback(message, cause);
+    await device.onError(message, cause);
   }
 
   async onUpdate(device: FreeAtHomeDevice, deviceUpdate): Promise<void> {

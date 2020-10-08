@@ -7,6 +7,10 @@ import { ActiveCondition } from "./deviceConditions/activeCondition";
 import { ErrorCondition } from "./deviceConditions/errorCondition";
 import { LoadingCondition } from "./deviceConditions/loadingCondition";
 import { StartingCondition } from "./deviceConditions/startingCondition";
+import { DeviceRegistrationRequest, FreeAtHomeApi } from "./freeAtHomeApi";
+
+const INFO_LOG = "info_log";
+const DEBUG_LOG = "debug_log";
 
 abstract class FreeAtHomeDeviceBase extends Homey.Device
   implements FreeAtHomeDevice {
@@ -17,6 +21,7 @@ abstract class FreeAtHomeDeviceBase extends Homey.Device
   public id: string;
   public deviceChannel: string;
   private debugLog: boolean;
+  private infoLog: boolean;
 
   // this method is called when the Device is inited
   async onInit() {
@@ -25,7 +30,8 @@ abstract class FreeAtHomeDeviceBase extends Homey.Device
     this.debug(`Device settings:`, settings);
 
     // Set values
-    this.debugLog = settings["debug_log"] === true;
+    this.debugLog = settings[DEBUG_LOG] === true;
+    this.infoLog = settings[INFO_LOG] === true;
 
     const { deviceId: serialNumber, channel, id } = this.getData();
     this.deviceId = serialNumber;
@@ -35,7 +41,7 @@ abstract class FreeAtHomeDeviceBase extends Homey.Device
     await this._deviceCondition.enterState(this);
   }
 
-  onFreeAtHomeInit() {}
+  abstract onFreeAtHomeInit();
 
   async setCapabilitySafely(value, capability) {
     try {
@@ -45,8 +51,7 @@ abstract class FreeAtHomeDeviceBase extends Homey.Device
       await this.setCapabilityValue(capability, value).catch(this.error);
       await this.setAvailable().catch(this.error);
     } catch (e) {
-      this.onError(`Something went wrong trying to update ${this.id}`, e);
-      // this.transitionToDeviceCondition(new ErrorCondition());
+      await this.onError(`Something went wrong trying to update ${this.id}`, e);
     }
   }
 
@@ -58,7 +63,7 @@ abstract class FreeAtHomeDeviceBase extends Homey.Device
    */
   async handleCapability(value, opts, capability) {
     try {
-      const api = await this.getApi();
+      const api = await Homey.app.getFreeAtHomeApi();
       await api.setDeviceState(
         this.deviceId,
         this.deviceChannel,
@@ -73,9 +78,22 @@ abstract class FreeAtHomeDeviceBase extends Homey.Device
     }
   }
 
+  async registerDevice(request: DeviceRegistrationRequest) {
+    try {
+      const api: FreeAtHomeApi = await Homey.app.getFreeAtHomeApi(false);
+      await api.registerDevice(request);
+    } catch (e) {
+      this.error("Could not register device", e);
+    }
+  }
+
   async onDeleted() {
-    const api = await this.getApi();
-    api.unregisterDevice({ uniqueId: this.id });
+    try {
+      const api: FreeAtHomeApi = await Homey.app.getFreeAtHomeApi(false);
+      api.unregisterDevice({ uniqueId: this.id });
+    } catch (e) {
+      this.error("Could not unregister device", e);
+    }
   }
 
   abstract onPollCallback(fullDeviceState);
@@ -90,7 +108,7 @@ abstract class FreeAtHomeDeviceBase extends Homey.Device
     await this._deviceCondition.onUpdate(this, deviceUpdate);
   }
 
-  onErrorCallback(message, cause) {}
+  abstract onErrorCallback(message, cause);
 
   async onError(message, cause) {
     await this._deviceCondition.onError(this, message, cause);
@@ -102,28 +120,28 @@ abstract class FreeAtHomeDeviceBase extends Homey.Device
     changedKeys: any[]
   ): Promise<string | void> {
     this.debug("Settings have changed", oldSettings, newSettings, changedKeys);
-    if (changedKeys.includes("debug_log")) {
-      this.debugLog = newSettings["debug_log"] === true;
+
+    if (changedKeys.includes(DEBUG_LOG)) {
+      this.debugLog = newSettings[DEBUG_LOG] === true;
+      if (this.debugLog) {
+        delay(100).then(() => {
+          this.setSettings({ [INFO_LOG]: true });
+        });
+        this.infoLog = true;
+      }
+    }
+
+    if (changedKeys.includes(INFO_LOG)) {
+      this.infoLog = newSettings[INFO_LOG] === true;
+      if (!this.infoLog) {
+        delay(100).then(() => {
+          this.setSettings({ [DEBUG_LOG]: false });
+        });
+        this.debugLog = false;
+      }
     }
 
     return Promise.resolve(Homey.__("device_settings_updated"));
-  }
-
-  async getApi(retry = true) {
-    try {
-      this.debug(`Tryin to get a hold of sysAP API (retry ${retry})`);
-      return await Homey.app.getFreeAtHomeApi();
-    } catch (e) {
-      this.error("Could not get get FreeAtHome API reference.", e);
-
-      if (retry) {
-        this.log(" Trying to connect to API once more");
-        await delay(5000);
-        return this.getApi(false);
-      } else {
-        throw e;
-      }
-    }
   }
 
   async transitionToDeviceCondition(
@@ -143,12 +161,24 @@ abstract class FreeAtHomeDeviceBase extends Homey.Device
         this._deviceCondition = new StartingCondition();
         break;
     }
+
     await this._deviceCondition.enterState(this);
   }
 
   //Override to indicate condition of device in logs
   log(...args: any[]): void {
-    super.log(this._deviceCondition.condition, ...args);
+    if (this.infoLog) {
+      delay(1).then(_ => {
+        super.log(this._deviceCondition.condition, ...args);
+      });
+    }
+  }
+
+  //Override to indicate condition of device in logs
+  error(...args: any[]): void {
+    delay(1).then(_ => {
+      super.error(this._deviceCondition.condition, ...args);
+    });
   }
 
   debug(...args: any[]): void {

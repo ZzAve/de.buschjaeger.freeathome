@@ -19,7 +19,9 @@ export class ErrorCondition implements FreeAtHomeDeviceConditionBehaviour {
   async enterState(device: FreeAtHomeDevice): Promise<void> {
     await device.setUnavailable(Homey.__("error")).catch(device.error);
     await device.setWarning(Homey.__("device_unavailable"));
-    device.error("There's no way out of my state currently. Should I restart?");
+    device.error(
+      "I'm in an error state, hopefully the API is resilient enough to get me out"
+    );
   }
 
   async onError(
@@ -27,15 +29,12 @@ export class ErrorCondition implements FreeAtHomeDeviceConditionBehaviour {
     message: String,
     cause: any
   ): Promise<void> {
-    device.error(
-      `An error occured whilst in Error state already: ${message}`,
-      cause
-    );
+    device.error(`An error occurred whilst in Error state : ${message}`, cause);
   }
 
   async onUpdate(device: FreeAtHomeDevice, deviceUpdate): Promise<void> {
     device.log(
-      "A miracle occured. I received an update after being in an error state. Transitioning to active"
+      "A miracle occurred. I received an update after being in an error state. Transitioning to active"
     );
     await device.unsetWarning();
     await device.transitionToDeviceCondition(FreeAtHomeDeviceCondition.ACTIVE);
@@ -44,7 +43,7 @@ export class ErrorCondition implements FreeAtHomeDeviceConditionBehaviour {
 
   async onPoll(device: FreeAtHomeDevice, fullDeviceState): Promise<void> {
     device.log(
-      "A miracle occured. I received a poll after being in an error state. Transitioning to active"
+      "A miracle occurred. I received a poll after being in an error state. Transitioning to active"
     );
     await device.unsetWarning();
     await device.transitionToDeviceCondition(FreeAtHomeDeviceCondition.ACTIVE);

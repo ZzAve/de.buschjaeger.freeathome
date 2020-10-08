@@ -1,5 +1,6 @@
 import Homey from "homey";
 import { FreeAtHomeDeviceCondition } from "./deviceConditions/freeAtHomeDeviceCondition";
+import { DeviceRegistrationRequest } from "./freeAtHomeApi";
 
 export interface FreeAtHomeDevice extends Homey.Device {
   deviceChannel: string;
@@ -28,11 +29,12 @@ export interface FreeAtHomeDevice extends Homey.Device {
 
   onErrorCallback(message, cause);
   onError(message, cause);
-  getApi(retry: boolean);
 
   transitionToDeviceCondition(
     freeAtHomeDeviceCondition: FreeAtHomeDeviceCondition
   ): Promise<void>;
 
   debug(...args: any[]): void;
+
+  registerDevice(request: DeviceRegistrationRequest): void;
 }
