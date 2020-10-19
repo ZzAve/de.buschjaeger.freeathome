@@ -12,7 +12,6 @@ export const safe = function(obj) {
   });
 };
 
-
 export const Homey = require("homey");
 
 export class Queue<T> {
@@ -26,12 +25,9 @@ export class Queue<T> {
   }
 }
 
-// exports.delay = delay;
-// exports.safe = safe;
-// exports.Homey = Homey;
-// module.exportss.Queue = Queue;
-// exports = {
-//   delay: delay,
-//   safe: safe,
-//   Homey: Homey,
-// };
+export const capabilityMapping = {
+  onoff: "idp0000",
+  dim: "idp0002",
+  windowcoverings_set: "idp0002",
+  windowcoverings_state: "idp0001"
+};

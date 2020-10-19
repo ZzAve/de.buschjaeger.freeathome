@@ -19,5 +19,43 @@
       "id": "freeathome",
       "$template": "freeathome"
     }
+  ],
+  "settings": [
+    {
+      "type": "group",
+      "label": {
+        "en": "Log settings",
+        "nl": "Log instellingen"
+      },
+      "children": [
+        {
+          "id": "debug_log",
+          "type": "checkbox",
+          "label": {
+            "en": "Debug logs",
+            "nl": "Debug logs"
+          },
+          "value": false,
+          "hint": {
+            "en": "Register debug logs for this device. These will show up in the app's settings",
+            "nl": "Wegschrijven van debug logs for dit apparaat. De logs zijn te vinden in de app instellingen"
+          }
+        },
+        {
+          "id": "info_log",
+          "type": "checkbox",
+          "label": {
+            "en": "Info logs",
+            "nl": "Info logs"
+          },
+          "value": false,
+          "hint": {
+            "en": "Register info logs for this device. These will show up in the app's settings",
+            "nl": "Wegschrijven van info logs for dit apparaat. De logs zijn te vinden in de app instellingen"
+          }
+        }
+
+      ]
+    }
   ]
 }

@@ -1,14 +1,13 @@
 require("promise.prototype.finally").shim();
 const { Homey } = require("./lib/util");
-const { FreeAtHomeApi } = require("./lib/freeathome");
+const { FreeAtHomeApi } = require("./lib/freeAtHomeApi");
 const Logger = require("./captureLogs.js");
 
 class FreeAtHome extends Homey.App {
   async onInit() {
     this.log(`${Homey.app.manifest.id} is running...`);
     this.logger = new Logger(); // [logName] [, logLength]
-    this.apiConnected = false;
-    this.sysAp = undefined;
+    this._api = undefined;
 
     process.on("uncaughtException", err => {
       this.error(err, "uncought Exception");
@@ -19,7 +18,7 @@ class FreeAtHome extends Homey.App {
 
     Homey.on("unload", () => {
       this.log("app unload called");
-      // save logs to persistant storage
+      // save logs to persistent storage
       this.logger.saveLogs();
     }).on("memwarn", data => {
       this.log("memwarn! ", data);
@@ -31,9 +30,7 @@ class FreeAtHome extends Homey.App {
     // Restart connection to SysAp on settings change
     Homey.ManagerSettings.on("set", async () => {
       this.log("Settings were updated");
-      await this._api.stop();
-      this.apiConnected = false;
-      await this._startSysAp();
+      await this._api.restart(0);
     });
   }
 
@@ -45,35 +42,33 @@ class FreeAtHome extends Homey.App {
       password: conf.password,
       hostname: conf.host
     });
-
-    this.apiConnected = true;
-    this.log("Started the freeathome api");
     return this._api;
   }
 
-  async _startSysAp() {
-    const startSysApConnection = this._startSysApConnection();
-
-    this.sysAp = new Promise(resolve => {
-      startSysApConnection.then(api => {
-        resolve(api);
-      });
-    });
-
-    return await startSysApConnection;
+  async _attemptRestartSysAp() {
+    // This should probably move to the api itself, right?
+    // await this._api.stop();
+    // await this._startSysAp();
+    // Do something with registration?
   }
 
-  async getSysAp() {
-    if (this.sysAp === undefined) {
-      return new Promise((_, reject) => {
-        this.log("rejecting the 'this.sysAP'-promise right now");
-        reject(
-          "Requested API connection while booting app. Please hold your horses"
-        );
-      });
+  async _startSysAp() {
+    return await this._startSysApConnection();
+  }
+
+  getFreeAtHomeApi(ensureConnected = true) {
+    if (this._api === undefined) {
+      this.log("rejecting the 'getFreeAtHomeApi'-promise right now");
+      return Promise.reject(
+        "Requested API connection while booting app. Please hold your horses"
+      );
     }
 
-    return this.sysAp;
+    if (ensureConnected && !this._api.connected) {
+      return Promise.reject("FreeAtHomeApi is not connected atm unfortunately");
+    }
+
+    return Promise.resolve(this._api);
   }
 
   // ============================================================

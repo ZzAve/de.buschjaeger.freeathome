@@ -1,52 +1,40 @@
+const FreeAtHomeDeviceBase = require("../../lib/freeAtHomeDeviceBase");
 const { safe } = require("../../lib/util");
-const FreeAtHomeDevice = require("../../lib/freeAtHomeDevice");
 
-class SwitchDevice extends FreeAtHomeDevice {
+class SwitchDevice extends FreeAtHomeDeviceBase {
   // this method is called when the Device is inited
   onFreeAtHomeInit() {
-      // register a capability listener
-      this.registerCapabilityListener(
-        "onoff",
-        this.onCapabilityOnoff.bind(this)
-      );
+    // register a capability listener
+    this.registerCapabilityListener("onoff", this.onCapabilityOnoff.bind(this));
   }
-
 
   // this method is called when the Device has requested a state change (turned on or off)
   async onCapabilityOnoff(value, opts) {
-    await this.handleCapability(+value, {}, "onoff")
-      .then(_ => {
-        this.setCapabilityValue("onoff", value).catch(this.error);
-      });
+    await this.handleCapability(+value, {}, "onoff").then(_ => {
+      this.setCapabilityValue("onoff", value).catch(this.error);
+    });
   }
 
-  onPoll(fullDeviceState) {
-    super.onPoll(...arguments);
-
+  onPollCallback(fullDeviceState) {
     this._updateState(safe(fullDeviceState).deviceState);
   }
 
-  onUpdate(changedState) {
-    super.onUpdate(...arguments);
-
-    this._updateState(safe(changedState).deviceUpdate);
+  onUpdateCallback(changedState) {
+    this._updateState(safe(changedState).deviceState);
   }
 
   _updateState(deviceState) {
-    const data = deviceState
-      .channels[this.deviceChannel]
-      .datapoints;
+    const data = deviceState.channels[this.deviceChannel].datapoints;
 
     const onoff = data["odp0000"];
 
     if ("value" in onoff) {
-      this.setStateSafely(!!+onoff.value, "onoff");
+      this.setCapabilitySafely(!!+onoff.value, "onoff");
     }
   }
 
-  onError(e) {
-    super.onError(...arguments);
-    this.error("some error", e);
+  onErrorCallback(message, cause) {
+    // this.error("some error", message);
   }
 }
 

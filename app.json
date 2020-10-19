@@ -23,6 +23,165 @@
   },
   "drivers": [
     {
+      "pair": [
+        {
+          "id": "list_devices",
+          "template": "list_devices",
+          "navigation": {
+            "next": "list_icons"
+          }
+        },
+        {
+          "id": "list_icons",
+          "navigation": {
+            "prev": "list_devices",
+            "next": "freeathome"
+          }
+        },
+        {
+          "id": "freeathome"
+        }
+      ],
+      "settings": [
+        {
+          "type": "group",
+          "label": {
+            "en": "General settings",
+            "nl": "Algemene instellingen"
+          },
+          "children": [
+            {
+              "id": "debug_log",
+              "type": "checkbox",
+              "label": {
+                "en": "Debug logs",
+                "nl": "Debug logs"
+              },
+              "value": false,
+              "hint": {
+                "en": "Register debug logs for this device. These will show up in the app's settings",
+                "nl": "Wegschrijven van debug logs for dit apparaat. De logs zijn te vinden in de app instelling"
+              }
+            }
+          ]
+        }
+      ],
+      "id": "blind",
+      "name": {
+        "en": "Blinds"
+      },
+      "class": "blinds",
+      "capabilities": [
+        "windowcoverings_state",
+        "windowcoverings_set"
+      ],
+      "images": {
+        "large": "/drivers/shutter/assets/images/large.png",
+        "small": "/drivers/shutter/assets/images/small.png"
+      }
+    },
+    {
+      "pair": [
+        {
+          "id": "list_devices",
+          "template": "list_devices",
+          "navigation": {
+            "next": "list_icons"
+          }
+        },
+        {
+          "id": "list_icons",
+          "navigation": {
+            "prev": "list_devices",
+            "next": "freeathome"
+          }
+        },
+        {
+          "id": "freeathome"
+        }
+      ],
+      "settings": [
+        {
+          "type": "group",
+          "label": {
+            "en": "General settings",
+            "nl": "Algemene instellingen"
+          },
+          "children": [
+            {
+              "id": "debug_log",
+              "type": "checkbox",
+              "label": {
+                "en": "Debug logs",
+                "nl": "Debug logs"
+              },
+              "value": false,
+              "hint": {
+                "en": "Register debug logs for this device. These will show up in the app's settings",
+                "nl": "Wegschrijven van debug logs for dit apparaat. De logs zijn te vinden in de app instelling"
+              }
+            }
+          ]
+        }
+      ],
+      "id": "dimmer",
+      "name": {
+        "en": "Dimmer"
+      },
+      "class": "light",
+      "capabilities": [
+        "dim",
+        "onoff"
+      ],
+      "images": {
+        "large": "/drivers/dimmer/assets/images/large.png",
+        "small": "/drivers/dimmer/assets/images/small.png"
+      }
+    },
+    {
+      "pair": [
+        {
+          "id": "list_devices",
+          "template": "list_devices",
+          "navigation": {
+            "next": "list_icons"
+          }
+        },
+        {
+          "id": "list_icons",
+          "navigation": {
+            "prev": "list_devices",
+            "next": "freeathome"
+          }
+        },
+        {
+          "id": "freeathome"
+        }
+      ],
+      "settings": [
+        {
+          "type": "group",
+          "label": {
+            "en": "General settings",
+            "nl": "Algemene instellingen"
+          },
+          "children": [
+            {
+              "id": "debug_log",
+              "type": "checkbox",
+              "label": {
+                "en": "Debug logs",
+                "nl": "Debug logs"
+              },
+              "value": false,
+              "hint": {
+                "en": "Register debug logs for this device. These will show up in the app's settings",
+                "nl": "Wegschrijven van debug logs for dit apparaat. De logs zijn te vinden in de app instelling"
+              }
+            }
+          ]
+        }
+      ],
       "id": "switch",
       "name": {
         "en": "Switch"
@@ -34,20 +193,7 @@
       "images": {
         "large": "/drivers/switch/assets/images/large.png",
         "small": "/drivers/switch/assets/images/small.png"
-      },
-      "pair": [
-        {
-          "id": "list_devices",
-          "template": "list_devices",
-          "navigation": {
-            "next": "add_devices"
-          }
-        },
-        {
-          "id": "add_devices",
-          "template": "add_devices"
-        }
-      ]
+      }
     }
   ]
 }

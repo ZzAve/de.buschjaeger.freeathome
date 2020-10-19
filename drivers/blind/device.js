@@ -1,7 +1,7 @@
 const { safe } = require("../../lib/util");
-const FreeAtHomeDevice = require("../../lib/freeAtHomeDevice");
+const FreeAtHomeDeviceBase = require("../../lib/freeAtHomeDeviceBase");
 
-class Blind extends FreeAtHomeDevice {
+class Blind extends FreeAtHomeDeviceBase {
   // this method is called when the Device is inited
   onFreeAtHomeInit() {
     const capabilities = this.getCapabilities();
@@ -79,16 +79,12 @@ class Blind extends FreeAtHomeDevice {
     }
   }
 
-  onPoll(fullDeviceState) {
-    super.onPoll(...arguments);
-
+  onPollCallback(fullDeviceState) {
     this._updateState(safe(fullDeviceState).deviceState);
   }
 
-  onUpdate(changedState) {
-    super.onUpdate(...arguments);
-
-    this._updateState(safe(changedState).deviceUpdate);
+  onUpdateCallback(changedState) {
+    this._updateState(safe(changedState).deviceState);
   }
 
   toFreeAtHomeDirection(homeyDirection) {
@@ -135,7 +131,7 @@ class Blind extends FreeAtHomeDevice {
       this.log(
         `Setting ${this.id}  windowcoverings_set to ${convertedValue} (derived from ${locationIndication.value})`
       );
-      this.setStateSafely(convertedValue, "windowcoverings_set");
+      this.setCapabilitySafely(convertedValue, "windowcoverings_set");
     }
 
     if ("value" in movingDirection) {
@@ -144,13 +140,12 @@ class Blind extends FreeAtHomeDevice {
       this.log(
         `Setting ${this.id}  windowcoverings_state to ${convertedDirection} (derived from ${movingDirection.value})`
       );
-      this.setStateSafely(convertedDirection, "windowcoverings_state");
+      this.setCapabilitySafely(convertedDirection, "windowcoverings_state");
     }
   }
 
-  onError(e) {
-    super.onError(...arguments);
-    this.error("some error", e);
+  onErrorCallback(message, cause) {
+    // this.error("some error", message);
   }
 }
 

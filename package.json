@@ -5,7 +5,7 @@
   "main": "app.js",
   "dependencies": {
     "fixture-stdout": "^0.2.1",
-    "freeathome-api": "github:henry-spanka/freeathome-api#feature-abb-structure",
+    "freeathome-api": "github:ZzAve/freeathome-api#feature-abb-structure",
     "fs-extra": "^8.1.0",
     "node-fetch": "^2.6.1",
     "promise.prototype.finally": "^3.1.1"
@@ -33,7 +33,8 @@
   "scripts": {
     "prehomey2": "npm run build && sh prepare.sh && cd dist && npm ci --production && cd ../",
     "prehomey": "npm run build && sh prepare.sh && cd dist && npm i --production && cd ../",
-    "build": "tsc",
+    "clean": "rm -rf dist/",
+    "build": "npm run build:dev",
     "build:dev": "webpack --mode=development",
     "build:pro": "webpack --mode=production",
     "yolo": "homey app run -p dist",
