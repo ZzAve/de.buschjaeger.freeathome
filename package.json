@@ -5,7 +5,7 @@
   "main": "app.js",
   "dependencies": {
     "fixture-stdout": "^0.2.1",
-    "freeathome-api": "github:henry-spanka/freeathome-api#feature-abb-structure",
+    "freeathome-api": "github:ZzAve/freeathome-api#feature-abb-structure",
     "fs-extra": "^8.1.0",
     "node-fetch": "^2.6.1",
     "promise.prototype.finally": "^3.1.1"

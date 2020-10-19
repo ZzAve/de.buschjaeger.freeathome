@@ -20,7 +20,7 @@ class SwitchDevice extends FreeAtHomeDeviceBase {
   }
 
   onUpdateCallback(changedState) {
-    this._updateState(safe(changedState).deviceUpdate);
+    this._updateState(safe(changedState).deviceState);
   }
 
   _updateState(deviceState) {

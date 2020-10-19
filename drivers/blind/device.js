@@ -84,7 +84,7 @@ class Blind extends FreeAtHomeDeviceBase {
   }
 
   onUpdateCallback(changedState) {
-    this._updateState(safe(changedState).deviceUpdate);
+    this._updateState(safe(changedState).deviceState);
   }
 
   toFreeAtHomeDirection(homeyDirection) {

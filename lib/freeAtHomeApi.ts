@@ -6,7 +6,13 @@ import { ClientConfiguration, SystemAccessPoint } from "freeathome-api";
 import { Subscriber } from "freeathome-api/dist/lib/Subscriber";
 import { delay, Queue } from "./util";
 
-class FreeAtHomeError extends Error {}
+class FreeAtHomeError {
+  private message: string;
+
+  constructor(message: string) {
+    this.message = message;
+  }
+}
 
 type FreeAtHomeMessage = {
   id: string;
@@ -139,42 +145,40 @@ export class FreeAtHomeApi extends Homey.SimpleClass implements Subscriber {
    * @param message
    */
   async broadcastMessage(message: BroadcastMessage) {
-    if (this.count === 0) {
-      this._connected = true;
-    }
-
-    // Process any new device registrations
-    const registration = this.processRegistrations();
-
     try {
-      if (message.type === "error") {
-        this.error("Received an error message: ", message);
-        //TODO: RECONNECT WITH SYSTEM? ERROR HANDLING SOMETHING
-        if (message.result !== null && message.result.name === "TimeoutError") {
-          this.log("Timeout message occurred", message);
-          await this.restart(10000);
-        } else {
-          this.error("Unknown error!", message);
-          await this.restart(60000);
-        }
-      } else if (message.type === "update") {
-        if (this.count % 10 === 0) {
-          this.log(
-            "Received a message: ",
-            this.count++,
-            JSON.stringify(message)
-          );
-        }
-
-        await this._onUpdate(message);
+      // this.log("=== == Received a message", message); //FIXME remove line
+      if (this.count === 0) {
+        this.log("=== == Received first message: ", message);
+        this._connected = true;
       }
+
+      const registration = this.processRegistrations();
+      await this.processMessage(message);
+      await registration;
     } catch (e) {
       this.error("Could not process received broadcastMessage.", e);
     }
-
-    await registration;
   }
 
+  private async processMessage(message: BroadcastMessage) {
+    if (message.type === "error") {
+      this.error("Received an error message: ", message);
+      //TODO: RECONNECT WITH SYSTEM? ERROR HANDLING SOMETHING
+      if (message.result !== null && message.result.name === "TimeoutError") {
+        this.log("Timeout message occurred", message);
+        await this.restart(10000);
+      } else {
+        this.error("Unknown error!", message);
+        await this.restart(60000);
+      }
+    } else if (message.type === "update") {
+      if (this.count % 10 === 0) {
+        this.log("Received a message: ", this.count++, JSON.stringify(message));
+      }
+
+      await this._onUpdate(message);
+    }
+  }
   private safeConfig(config: ClientConfiguration) {
     let sysApConfig = {
       hostname: "",
@@ -250,6 +254,7 @@ export class FreeAtHomeApi extends Homey.SimpleClass implements Subscriber {
   }
 
   private _updating: boolean = false;
+
   private async _onUpdate(message: BroadcastMessage) {
     if (this._updating) {
       //Queue update
@@ -304,7 +309,9 @@ export class FreeAtHomeApi extends Homey.SimpleClass implements Subscriber {
       this.error(e);
     }
   }
+
   private _polling: boolean = false;
+
   private async _onPoll() {
     if (this._polling || !this._connected) return;
     this._polling = true;
