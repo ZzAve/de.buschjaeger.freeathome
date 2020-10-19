@@ -60,7 +60,11 @@ without having to leave the IDE. It also results in less trial and error.~~
     * blinds by [Christian Baptist from the Noun Project](https://thenounproject.com/search/?q=blinds&i=1977747)
     * roller blinds by [Vectors Point from the Noun Project](https://thenounproject.com/search/?q=blinds&i=3189561)
     * Curtain by [ProSymbols from the Noun Project](https://thenounproject.com/search/?q=curtain&i=2423823)
-    * Window shutter by [Alexander Skowalsky from the Noun Project](https://thenounproject.com/search/?q=%20window%20shutter&i=760089)    
+    * Window shutter by [Alexander Skowalsky from the Noun Project](https://thenounproject.com/search/?q=%20window%20shutter&i=760089)
+* Heater icon by:
+    * Heater icon by [Sophia Bai from the Noun Project](https://thenounproject.com/search/?q=heat&i=1913765)    
+
+
 # Initial scope (POC)
 
 ## Scope of POC 

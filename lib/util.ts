@@ -29,5 +29,6 @@ export const capabilityMapping = {
   onoff: "idp0000",
   dim: "idp0002",
   windowcoverings_set: "idp0002",
-  windowcoverings_state: "idp0001"
+  windowcoverings_state: "idp0001",
+  freeathome_heating: "idp0005"
 };

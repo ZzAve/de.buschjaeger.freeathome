@@ -1,0 +1,13 @@
+{
+  "id": "freeathome_heating",
+  "type": "number",
+  "title": {
+    "en": "Heating level"
+  },
+  "uiComponent": "slider",
+  "getable": true,
+  "setable": true,
+  "min": 0,
+  "max": 100,
+  "step": 25
+}

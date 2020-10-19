@@ -108,7 +108,9 @@ const appConfig = (env, argv) => {
       "drivers/dimmer/driver": "./drivers/dimmer/driver.js",
       "drivers/dimmer/device": "./drivers/dimmer/device.js",
       "drivers/blind/driver": "./drivers/blind/driver.js",
-      "drivers/blind/device": "./drivers/blind/device.js"
+      "drivers/blind/device": "./drivers/blind/device.js",
+      "drivers/heating/driver": "./drivers/heating/driver.js",
+      "drivers/heating/device": "./drivers/heating/device.js"
     },
     module: {
       rules: [

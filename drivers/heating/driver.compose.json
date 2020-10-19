@@ -1,0 +1,18 @@
+{
+  "id": "heating",
+  "name": {
+    "en": "Heating",
+    "nl": "Verwarming"
+  },
+  "class": "heater",
+  "capabilities": [
+    "freeathome_heating"
+  ],
+  "images": {
+    "large": "/drivers/heating/assets/images/large.png",
+    "small": "/drivers/heating/assets/images/small.png"
+  },
+  "$extends": [
+    "default"
+  ]
+}
