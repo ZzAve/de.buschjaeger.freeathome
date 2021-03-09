@@ -72,11 +72,11 @@ const appConfig = (env, argv) => {
           from: "assets/**/*",
           to: distPath
         },
-        {
-          from: "**/assets/**/*",
-          context: "drivers",
-          to: distPath + "/drivers"
-        },
+        // {
+        //   from: "**/assets/**/*",
+        //   context: "drivers",
+        //   to: distPath + "/drivers"
+        // },
         {
           from: "**/*.json",
           context: "drivers",

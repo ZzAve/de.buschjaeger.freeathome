@@ -20,28 +20,43 @@ class FreeAtHome extends Homey.App {
       this.log("app unload called");
       // save logs to persistent storage
       this.logger.saveLogs();
+      this._api.stop(true)
     }).on("memwarn", data => {
       this.log("memwarn! ", data);
     });
+
+    this._triggers = {
+      apiConnected: new Homey.FlowCardTrigger(
+        "busch_jaeger_connected"
+      ).register(),
+      apiDisconnected: new Homey.FlowCardTrigger(
+        "busch_jaeger_disconnected"
+      ).register()
+    };
 
     this._api = new FreeAtHomeApi();
     await this._startSysAp();
 
     // Restart connection to SysAp on settings change
-    Homey.ManagerSettings.on("set", async () => {
-      this.log("Settings were updated");
-      await this._api.restart(0);
+    Homey.ManagerSettings.on("set", async setting => {
+      this.log("Settings were updated: ", setting);
+      if (setting === "sysap") await this._api.restart(0, this.apiConfig());
     });
   }
 
-  async _startSysApConnection() {
+  apiConfig() {
     const conf = Homey.ManagerSettings.get(`sysap`) || {};
 
-    await this._api.start({
+    return {
       username: conf.username,
       password: conf.password,
       hostname: conf.host
-    });
+    };
+  }
+
+  async _startSysApConnection() {
+    let config = this.apiConfig();
+    await this._api.start(config);
     return this._api;
   }
 
@@ -54,6 +69,35 @@ class FreeAtHome extends Homey.App {
 
   async _startSysAp() {
     return await this._startSysApConnection();
+  }
+
+  _getTriggerSettings() {
+    const triggers = Homey.ManagerSettings.get(`triggers`);
+    this.log("trigger settings:", triggers)
+    if (!triggers || typeof triggers !== "object"){
+      Homey.ManagerSettings.set("triggers", {})
+      return {}
+    } else {
+      return triggers
+    }
+  }
+
+  async _setTriggerSettings(settings) {
+    Homey.ManagerSettings.set("triggers", {...this._getTriggerSettings(), ...settings});
+  }
+
+  async apiConnectedTrigger() {
+    if (!this._getTriggerSettings().apiConnected) {
+      this._triggers.apiConnected.trigger().catch(this.error);
+      await this._setTriggerSettings({ apiConnected: true });
+    }
+  }
+
+  async apiDisconnectedTrigger() {
+    if (!!this._getTriggerSettings().apiConnected) {
+      this._triggers.apiDisconnected.trigger().catch(this.error);
+      await this._setTriggerSettings({apiConnected: false});
+    }
   }
 
   getFreeAtHomeApi(ensureConnected = true) {

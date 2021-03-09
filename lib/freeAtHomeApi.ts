@@ -95,7 +95,10 @@ export class FreeAtHomeApi extends Homey.SimpleClass implements Subscriber {
         new FreeAtHomeError("stopped_freeathome")
       );
 
-      this._connected = false;
+      if (this._connected === true) {
+        this._connected = false;
+        Homey.app.apiDisconnectedTrigger();
+      }
     }
   }
 
@@ -103,18 +106,25 @@ export class FreeAtHomeApi extends Homey.SimpleClass implements Subscriber {
    *
    * @param timeout ms to wait before restart
    */
-  async restart(timeout: number) {
+  async restart(timeout: number, config?: ClientConfiguration) {
     await this.stop(true);
 
+    const sequenceId = this._sequenceId;
     this.log(`Restarting free@home API after ${timeout / 1000}s`);
     await delay(timeout);
 
-    try {
-      await this.start(); // consider timeouts and stuff
-    } catch (e) {
-      this.log("Error during restart Trying again", e);
-      await this.restart(60000);
+    // check if still relevant?
+    if (sequenceId === this._sequenceId) {
+      try {
+        await this.start(config); // consider timeouts and stuff
+      } catch (e) {
+        this.log("Error during restart Trying again", e);
+        await this.restart(60000);
+      }
+    } else {
+      this.log("Restarting app is not relevant anymore... app already running?")
     }
+
   }
 
   async waitUntilConnected(
@@ -124,8 +134,8 @@ export class FreeAtHomeApi extends Homey.SimpleClass implements Subscriber {
   ) {
     if (retries > 0) {
       this.log("Checking if connection is up and running with freeathome...");
-
       if (this._connected == true || sequenceId !== this._sequenceId) {
+        this.log("... connection is up ☑️ (or irrelevant)");
         return;
       }
 
@@ -146,7 +156,6 @@ export class FreeAtHomeApi extends Homey.SimpleClass implements Subscriber {
    */
   async broadcastMessage(message: BroadcastMessage) {
     try {
-      // this.log("=== == Received a message", message); //FIXME remove line
       if (this.count === 0) {
         this.log("=== == Received first message: ", message);
         this._connected = true;
@@ -172,13 +181,19 @@ export class FreeAtHomeApi extends Homey.SimpleClass implements Subscriber {
         await this.restart(60000);
       }
     } else if (message.type === "update") {
+      if (this.count === 0) {
+        Homey.app.apiConnectedTrigger();
+      }
+
+      this.count++;
       if (this.count % 10 === 0) {
-        this.log("Received a message: ", this.count++, JSON.stringify(message));
+        this.log("Received a message: ", this.count, JSON.stringify(message));
       }
 
       await this._onUpdate(message);
     }
   }
+
   private safeConfig(config: ClientConfiguration) {
     let sysApConfig = {
       hostname: "",
