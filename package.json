@@ -6,29 +6,28 @@
   "dependencies": {
     "fixture-stdout": "^0.2.1",
     "freeathome-api": "github:ZzAve/freeathome-api#feature-abb-structure",
-    "fs-extra": "^8.1.0",
+    "fs-extra": "^9.1.0",
     "node-fetch": "^2.6.1",
-    "promise.prototype.finally": "^3.1.1"
+    "promise.prototype.finally": "^3.1.2"
   },
   "devDependencies": {
     "@types/prop-types": "^15.7.3",
     "clean-webpack-plugin": "^3.0.0",
-    "copy-webpack-plugin": "^6.1.1",
-    "cz-conventional-changelog": "^3.0.2",
-    "eslint": "^6.6.0",
-    "eslint-config-prettier": "^6.4.0",
-    "eslint-plugin-prettier": "^3.1.1",
-    "homey": "^2.8.0",
+    "copy-webpack-plugin": "^8.1.0",
+    "eslint": "^7.22.0",
+    "eslint-config-prettier": "^8.1.0",
+    "eslint-plugin-prettier": "^3.3.1",
+    "homey": "^2.12.3",
     "husky": "^3.0.9",
-    "prettier": "^1.18.2",
-    "prettier-eslint": "^9.0.0",
+    "prettier": "^2.2.1",
+    "prettier-eslint": "^12.0.0",
     "prop-types": "^15.7.2",
-    "semver": "^6.3.0",
+    "semver": "^7.3.4",
     "serialize-javascript": "^5.0.1",
-    "ts-loader": "^6.2.0",
-    "typescript": "^3.6.4",
-    "webpack": "^4.44.2",
-    "webpack-cli": "^3.3.9"
+    "ts-loader": "^8.0.18",
+    "typescript": "^4.2.3",
+    "webpack": "^5.27.2",
+    "webpack-cli": "^4.5.0"
   },
   "scripts": {
     "prehomey2": "npm run build && sh prepare.sh && cd dist && npm ci --production && cd ../",
@@ -52,15 +51,5 @@
   "bugs": {
     "url": "https://github.com/ZzAve/de.buschjaeger.freeathome/issues"
   },
-  "homepage": "https://github.com/ZzAve/de.buschjaeger.freeathome#readme",
-  "config": {
-    "commitizen": {
-      "path": "./node_modules/cz-conventional-changelog"
-    }
-  },
-  "husky": {
-    "hooks": {
-      "prepare-commit-msg": "exec < /dev/tty && git cz --hook || true"
-    }
-  }
+  "homepage": "https://github.com/ZzAve/de.buschjaeger.freeathome#readme"
 }
