@@ -13,41 +13,8 @@ class FreeAtHomeDriver extends Homey.Driver {
 
     this.devicesPromise = Promise.resolve([]);
 
-    // this.setupIcons();
   }
-
-  // setupIcons(){
-  //     // Define the current version, Add for future backwards compatibility checks
-  //     // this.version = 21704;
-  //
-  //     // Define the current application root directory by its relative path from the driver.
-  //     this.appPath = '../../../';
-  //
-  //     // Set the path to our icons - note in order to be useful its relative.
-  //     this.assetPath = '/app/' + Homey.manifest.id + '/assets/icons/';
-  //
-  //     // Assign the i18n title @todo full i18n integration Homey.__("hello", { "name": "Dave" })
-  //     // this.name = Homey.__('category.' + this.class + '.title') + ' < ' + Homey.__('_.group') + ' >';
-  //
-  //     this.icons =  {};
-  //
-  //     // If the icons have been assigned use them otherwise default.
-  //     if (freeAtHomeIcons.length) {
-  //         // Loop through and add all of the category icons.
-  //         for (let i in freeAtHomeIcons) {
-  //             this.icons[this.assetPath + freeAtHomeIcons[i].relativePath] = this.appPath + 'assets/icons/categories/' + freeAtHomeIcons[i].relativePath;
-  //         }
-  //
-  //     // } else {
-  //
-  //         // Add the category icon
-  //         // this.icons['/app/' + Homey.manifest.id + '/drivers/' + this.class + '/assets/icon.svg'] =  'icon.svg';
-  //     }
-  //
-  //     // Add the default icon.
-  //     this.icons['/app/' + Homey.manifest.id + '/assets/icon.svg'] = this.appPath + '/assets/icon.svg';
-  // }
-
+  
   onInitFlow() {
     //overload me
   }

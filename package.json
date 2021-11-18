@@ -2,7 +2,7 @@
   "name": "de.buschjaeger.freeathome",
   "version": "0.0.1",
   "description": "Adds support for Busch Jaeger's Free@home system and its connected devices to Homey",
-  "main": "app.js",
+  "main": "app.ts",
   "dependencies": {
     "fixture-stdout": "^0.2.1",
     "freeathome-api": "github:ZzAve/freeathome-api#feature-abb-structure",

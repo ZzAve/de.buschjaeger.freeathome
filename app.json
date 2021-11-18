@@ -2,6 +2,7 @@
   "id": "de.buschjaeger.freeathome",
   "version": "0.0.1",
   "compatibility": ">=2.5.2",
+  "brandColor": "#26ade7",
   "sdk": 2,
   "name": {
     "en": "Bush Jeager Free@Home"

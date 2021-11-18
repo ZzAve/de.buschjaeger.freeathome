@@ -30,7 +30,7 @@ export type DeviceRegistrationRequest = {
 export class FreeAtHomeApi extends Homey.SimpleClass implements Subscriber {
   private _connected: boolean;
   private systemAccessPoint: SystemAccessPoint;
-  private _pollInterval: NodeJS.Timeout;
+  private _pollInterval: number;
   private POLL_INTERVAL: number = 5 * 60 * 1000;
 
   private readonly watchedDevices: Map<string, DeviceRegistrationRequest>; // make this a list of freeathome devices
@@ -105,6 +105,7 @@ export class FreeAtHomeApi extends Homey.SimpleClass implements Subscriber {
   /**
    *
    * @param timeout ms to wait before restart
+   * @param config client config
    */
   async restart(timeout: number, config?: ClientConfiguration) {
     await this.stop(true);
@@ -236,9 +237,9 @@ export class FreeAtHomeApi extends Homey.SimpleClass implements Subscriber {
    * @returns {Promise<void>}
    */
   async setDeviceState(deviceId, channel, dataPoint, value) {
-    // this.log(
-    //   `Setting (device, channel, datapoint, value): ${deviceId}, ${channel}, ${dataPoint}, ${value}`
-    // );
+    this.log(
+      `Setting (device, channel, datapoint, value): ${deviceId}, ${channel}, ${dataPoint}, ${value}`
+    );
 
     if (this._connected) {
       return await this.systemAccessPoint.setDatapoint(
@@ -258,9 +259,10 @@ export class FreeAtHomeApi extends Homey.SimpleClass implements Subscriber {
     if (this.watchedDevices.size < 1) return;
 
     this.log("Enabling polling...");
+    // @ts-ignore
     this._pollInterval = setInterval(async () => {
       await this._onPoll();
-    }, this.POLL_INTERVAL);
+    }, this.POLL_INTERVAL) ;
   }
 
   disablePolling() {

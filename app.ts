@@ -1,16 +1,19 @@
+import {Homey} from "./lib/util";
+
+import {FreeAtHomeApi} from "./lib/freeAtHomeApi";
+
+import Logger from "./captureLogs.js";
+
 require("promise.prototype.finally").shim();
-const { Homey } = require("./lib/util");
-const { FreeAtHomeApi } = require("./lib/freeAtHomeApi");
-const Logger = require("./captureLogs.js");
 
 class FreeAtHome extends Homey.App {
   async onInit() {
     this.log(`${Homey.app.manifest.id} is running...`);
-    this.logger = new Logger(); // [logName] [, logLength]
+    this.logger = new Logger("FreeAtHome", 100); // [logName] [, logLength]
     this._api = undefined;
 
     process.on("uncaughtException", err => {
-      this.error(err, "uncought Exception");
+      this.error(err, "uncaught Exception");
     });
     process.on("unhandledRejection", (reason, p) => {
       this.error(reason, "Unhandled Rejection at:", p, "reason:", reason);
@@ -58,13 +61,6 @@ class FreeAtHome extends Homey.App {
     let config = this.apiConfig();
     await this._api.start(config);
     return this._api;
-  }
-
-  async _attemptRestartSysAp() {
-    // This should probably move to the api itself, right?
-    // await this._api.stop();
-    // await this._startSysAp();
-    // Do something with registration?
   }
 
   async _startSysAp() {

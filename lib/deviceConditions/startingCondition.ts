@@ -14,16 +14,6 @@ export class StartingCondition implements FreeAtHomeDeviceConditionBehaviour {
     await device.setUnavailable(Homey.__("starting"));
     await device.unsetWarning();
 
-    // TODO Startup behaviour
-    // Disable device
-    // Get current status
-    // Set device state
-    // Enable states
-
-    // this.log("Fetching 'api' ...");
-    // this.api = await this.getApi();
-    // this.log("... Fetched 'api'");
-
     /* TODO: Rewrite registerDeviceOLD to:
             - add device to list,
             - return immediately indicating unknown device state and,
@@ -40,7 +30,7 @@ export class StartingCondition implements FreeAtHomeDeviceConditionBehaviour {
     await device.registerDevice(request);
     device.onFreeAtHomeInit();
 
-    await device.transitionToDeviceCondition(FreeAtHomeDeviceCondition.LOADING); // FIXME Hack to go from start -- loading -- active
+    await device.transitionToDeviceCondition(FreeAtHomeDeviceCondition.LOADING);
   }
 
   async onError(

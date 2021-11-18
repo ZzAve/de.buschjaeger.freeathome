@@ -1,23 +1,23 @@
-const Homey = require('homey');
+import { Homey } from "./lib/util";
 
 module.exports = [
   {
-    description: 'Show loglines',
-    method: 'GET',
-    path: '/logs/',
+    description: "Show loglines",
+    method: "GET",
+    path: "/logs/",
     requires_authorization: true,
-    role: 'owner',
+    role: "owner",
     fn: function fn(args, callback) {
       const result = Homey.app.getLogs();
       callback(null, result);
     },
   },
   {
-    description: 'Delete logs',
-    method: 'DELETE',
-    path: '/logs/',
+    description: "Delete logs",
+    method: "DELETE",
+    path: "/logs/",
     requires_authorization: true,
-    role: 'owner',
+    role: "owner",
     fn: function fn(args, callback) {
       const result = Homey.app.deleteLogs();
       callback(null, result);

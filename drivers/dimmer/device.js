@@ -1,8 +1,8 @@
-// const Homey = require("homey");
 const { safe } = require("../../lib/util");
 const FreeAtHomeDeviceBase = require("../../lib/freeAtHomeDeviceBase");
 
 class Dimmer extends FreeAtHomeDeviceBase {
+
   // this method is called when the Device is inited
   onFreeAtHomeInit() {
     const capabilities = this.getCapabilities();

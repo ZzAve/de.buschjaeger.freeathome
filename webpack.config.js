@@ -6,16 +6,16 @@ const path = require("path");
 
 const distPath = path.resolve(__dirname, "./dist");
 
-const package = require("./package.json");
+const packageJson = require("./package.json");
 const appPackage = require("./app.json");
 
-if (package.version.indexOf("-") > 0) {
-  appPackage.version = package.version.substring(
+if (packageJson.version.indexOf("-") > 0) {
+  appPackage.version = packageJson.version.substring(
     0,
-    package.version.indexOf("-")
+    packageJson.version.indexOf("-")
   );
 } else {
-  appPackage.version = package.version;
+  appPackage.version = packageJson.version;
 }
 
 const tempDir = __dirname + "/tmp";
@@ -29,8 +29,8 @@ const appConfig = (env, argv) => {
   const plugins = [
     new webpack.DefinePlugin({
       __PRODUCTION__: JSON.stringify(PRODUCTION),
-      __VERSION: JSON.stringify(package.version),
-      __BUILD: JSON.stringify(process.env.TRAVIS_BUILD_NUMBER)
+      __VERSION: JSON.stringify(packageJson.version),
+      __BUILD: JSON.stringify(process.env.TRAVIS_BUILD_NUMBER),
     }),
 
     // // source-map is wrong for typescript code but better than nothing
@@ -46,31 +46,31 @@ const appConfig = (env, argv) => {
       patterns: [
         {
           from: "./tmp/app.json",
-          to: distPath
+          to: distPath,
         },
         {
           from: "./*.md",
-          to: distPath
+          to: distPath,
         },
         {
           from: "./LICENSE",
-          to: distPath
+          to: distPath,
         },
         {
           from: "./.homeyignore",
-          to: distPath
+          to: distPath,
         },
         {
           from: "./.homeyplugins.json",
-          to: distPath
+          to: distPath,
         },
         {
           from: "./APPSTORE.md",
-          to: distPath
+          to: distPath,
         },
         {
           from: "assets/**/*",
-          to: distPath
+          to: distPath,
         },
         // {
         //   from: "**/assets/**/*",
@@ -80,29 +80,29 @@ const appConfig = (env, argv) => {
         {
           from: "**/*.json",
           context: "drivers",
-          to: distPath + "/drivers"
+          to: distPath + "/drivers",
         },
         {
           from: "settings/**/*",
-          to: distPath
+          to: distPath,
         },
         {
           from: ".homeycompose/**/*",
-          to: distPath
+          to: distPath,
         },
         {
           from: "locales/**/*",
-          to: distPath
-        }
-      ]
-    })
+          to: distPath,
+        },
+      ],
+    }),
   ].filter(Boolean);
 
   return {
     target: "node",
     entry: {
-      app: "./app.js",
-      api: "./api.js",
+      app: "./app.ts",
+      api: "./api.ts",
       "drivers/switch/driver": "./drivers/switch/driver.js",
       "drivers/switch/device": "./drivers/switch/device.js",
       "drivers/dimmer/driver": "./drivers/dimmer/driver.js",
@@ -110,25 +110,25 @@ const appConfig = (env, argv) => {
       "drivers/blind/driver": "./drivers/blind/driver.js",
       "drivers/blind/device": "./drivers/blind/device.js",
       "drivers/heating/driver": "./drivers/heating/driver.js",
-      "drivers/heating/device": "./drivers/heating/device.js"
+      "drivers/heating/device": "./drivers/heating/device.js",
     },
     module: {
       rules: [
         {
           test: /\.tsx?$/,
           use: "ts-loader",
-          exclude: /node_modules/
-        }
-      ]
+          exclude: /node_modules/,
+        },
+      ],
     },
     resolve: {
-      extensions: [".tsx", ".ts", ".js"]
+      extensions: [".tsx", ".ts", ".js"],
     },
     plugins: plugins,
     output: {
       filename: "[name].js",
       path: distPath,
-      libraryTarget: "commonjs2"
+      libraryTarget: "commonjs2",
     },
 
     devtool: PRODUCTION ? false : "eval-source-map",
@@ -137,8 +137,8 @@ const appConfig = (env, argv) => {
     externals: {
       homey: "homey",
       bufferutil: "bufferutil",
-      "utf-8-validate": "utf-8-validate"
-    }
+      "utf-8-validate": "utf-8-validate",
+    },
   };
 };
 module.exports = appConfig;

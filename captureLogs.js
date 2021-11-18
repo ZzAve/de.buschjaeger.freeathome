@@ -18,12 +18,11 @@ You should have received a copy of the GNU General Public License
 along with com.plugwise.smile.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-'use strict';
+"use strict";
 
-const Homey = require('homey');
-const StdOutFixture = require('fixture-stdout');
-const fs = require('fs');
-// const util = require('util');
+const Homey = require("homey");
+const StdOutFixture = require("fixture-stdout");
+const fs = require("fs");
 
 class captureLogs {
   // Log object to keep logs in memory and in persistent storage
@@ -31,7 +30,7 @@ class captureLogs {
 
   constructor(logName, logLength) {
     this.logArray = [];
-    this.logName = logName || 'log';
+    this.logName = logName || "log";
     this.logLength = logLength || 50;
     this.logFile = `/userdata/${this.logName}.json`;
     this.getLogs();
@@ -41,15 +40,15 @@ class captureLogs {
   }
 
   getLogs() {
-    fs.readFile(this.logFile, 'utf8', (err, data) => {
+    fs.readFile(this.logFile, "utf8", (err, data) => {
       if (err) {
-        Homey.app.error('no logfile available');
+        Homey.app.error("no logfile available");
         return [];
       }
       try {
         this.logArray = JSON.parse(data);
       } catch (error) {
-        Homey.app.error('error parsing logfile: ', error.message);
+        Homey.app.error("error parsing logfile: ", error.message);
         return [];
       }
       return this.logArray;
@@ -59,9 +58,9 @@ class captureLogs {
   saveLogs() {
     fs.writeFile(this.logFile, JSON.stringify(this.logArray), (err) => {
       if (err) {
-        Homey.app.error('error writing logfile: ', err.message);
+        Homey.app.error("error writing logfile: ", err.message);
       } else {
-        Homey.app.log('logfile saved');
+        Homey.app.log("logfile saved");
       }
     });
   }
@@ -70,10 +69,10 @@ class captureLogs {
     this.logArray = [];
     fs.unlink(this.logFile, (err) => {
       if (err) {
-        Homey.app.error('error deleting logfile: ', err.message);
+        Homey.app.error("error deleting logfile: ", err.message);
         return err;
       }
-      Homey.app.log('logfile deleted');
+      Homey.app.log("logfile deleted");
       return true;
     });
   }
@@ -113,7 +112,6 @@ class captureLogs {
   releaseStdErr() {
     this.captureStderr.release();
   }
-
 }
 
 module.exports = captureLogs;
