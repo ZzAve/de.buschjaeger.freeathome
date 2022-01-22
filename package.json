@@ -7,7 +7,7 @@
     "fixture-stdout": "^0.2.1",
     "freeathome-api": "github:ZzAve/freeathome-api#feature-abb-structure",
     "fs-extra": "^9.1.0",
-    "node-fetch": "^2.6.1",
+    "node-fetch": "^3.1.1",
     "promise.prototype.finally": "^3.1.2"
   },
   "devDependencies": {
