@@ -97,7 +97,7 @@ Replace the GitHub fork `freeathome-api` (ZzAve/freeathome-api#feature-abb-struc
 
 ### 2.3 Add New Private Fields
 
-- [ ] Add to class:
+- [x] Add to class:
   ```typescript
   private _sysApUuid: string | null = null;
   private subscription: Subscription | null = null;

@@ -1,7 +1,7 @@
 "use strict";
 
 import Homey from "homey";
-import { SystemAccessPoint, WebSocketMessage } from "freeathome-local-api-client";
+import {Logger, SystemAccessPoint} from "freeathome-local-api-client";
 import { Subscription } from "rxjs";
 import { delay, Queue } from "./util";
 
@@ -38,6 +38,31 @@ export type DeviceRegistrationRequest = {
   onError: (message: string, cause: any) => void;
 };
 
+class LoggerImpl implements Logger {
+    private readonly prefix: string;
+
+    constructor(prefix?: string) {
+        this.prefix = prefix ?? "[FreeAtHomeAPI]"
+    }
+
+    debug(message: unknown | undefined, optionalParams: unknown): void {
+        return Homey.app.log(`${this.prefix} ${message}`, optionalParams);
+    }
+
+    error(message: unknown | undefined, optionalParams: unknown): void {
+        return Homey.app.error(`${this.prefix} ${message}`, optionalParams);
+    }
+
+    log(message: unknown | undefined, optionalParams: unknown): void {
+        return Homey.app.log(`${this.prefix} ${message}`, optionalParams);
+    }
+
+    warn(message: unknown | undefined, optionalParams: unknown): void {
+        return Homey.app.log(`${this.prefix} ${message}`, optionalParams);
+    }
+
+}
+
 export class FreeAtHomeApi extends Homey.SimpleClass {
   private _connected: boolean;
   private systemAccessPoint: SystemAccessPoint;
@@ -46,6 +71,8 @@ export class FreeAtHomeApi extends Homey.SimpleClass {
 
   private readonly watchedDevices: Map<string, DeviceRegistrationRequest>; // make this a list of freeathome devices
   private _sequenceId: number = Math.random();
+  private _sysApUuid: string | null = null;
+  private subscription: Subscription | null = null;
 
   get connected(): Boolean {
     return this._connected;
@@ -57,6 +84,8 @@ export class FreeAtHomeApi extends Homey.SimpleClass {
 
   // nr of messages received
   private count: number = 0;
+
+  private logger = new LoggerImpl();
 
   constructor() {
     super();
@@ -80,7 +109,7 @@ export class FreeAtHomeApi extends Homey.SimpleClass {
     }
 
     try {
-      await this.systemAccessPoint.connect();
+        this.systemAccessPoint.connectWebSocket(false)
       await this.waitUntilConnected(20, 2000, this._sequenceId);
       this.enablePolling();
     } catch (e) {
@@ -94,7 +123,7 @@ export class FreeAtHomeApi extends Homey.SimpleClass {
     this._sequenceId = Math.random();
     if (force === true || this._connected) {
       try {
-        await this.systemAccessPoint.disconnect();
+        this.systemAccessPoint.disconnectWebSocket();
       } catch (e) {
         this.error("Stopping failed. Please continue");
       }
@@ -216,8 +245,10 @@ export class FreeAtHomeApi extends Homey.SimpleClass {
     this.log(
       `Setting up SystemAccessPoint connection to: ${sysApConfig.hostname} with user ${sysApConfig.username}`
     );
-    return new SystemAccessPoint(sysApConfig, this, null);
+      return new SystemAccessPoint(config.hostname, config.username, config.password, false, true, this.logger);
   }
+
+
 
   /**
    * TODO : error handling
@@ -227,7 +258,7 @@ export class FreeAtHomeApi extends Homey.SimpleClass {
     if (this._connected) {
       this.log("Getting device info");
       try {
-        return await this.systemAccessPoint.getDeviceData();
+        return await this.systemAccessPoint.getDeviceList();
       } catch (e) {
         this.error("Error getting device data", e);
         return {}; // TODO Should we clear state on error?
@@ -253,6 +284,7 @@ export class FreeAtHomeApi extends Homey.SimpleClass {
 
     if (this._connected) {
       return await this.systemAccessPoint.setDatapoint(
+
         deviceId.toString(),
         channel.toString(),
         dataPoint.toString(),
