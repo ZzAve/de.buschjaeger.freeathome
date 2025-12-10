@@ -47,20 +47,20 @@ Replace the GitHub fork `freeathome-api` (ZzAve/freeathome-api#feature-abb-struc
 
 ### 2.1 Update Dependencies (package.json)
 
-- [ ] Remove old dependency:
+- [x] Remove old dependency:
   ```json
   "freeathome-api": "github:ZzAve/freeathome-api#feature-abb-structure"
   ```
 
-- [ ] Add new dependencies:
+- [x] Add new dependencies:
   ```json
   "freeathome-local-api-client": "^1.9.0",
   "rxjs": "^7.8.2"
   ```
 
-- [ ] Run: `npm install`
+- [x] Run: `npm install`
 
-- [ ] Verify installation: `npm list freeathome-local-api-client rxjs`
+- [x] Verify installation: `npm list freeathome-local-api-client rxjs`
 
 ### 2.2 Update Imports (lib/freeAtHomeApi.ts)
 

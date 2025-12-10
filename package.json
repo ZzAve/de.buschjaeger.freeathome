@@ -5,10 +5,11 @@
   "main": "app.js",
   "dependencies": {
     "fixture-stdout": "^0.2.1",
-    "freeathome-api": "github:ZzAve/freeathome-api#feature-abb-structure",
+    "freeathome-local-api-client": "^1.9.0",
     "fs-extra": "^9.1.0",
     "node-fetch": "^2.6.1",
-    "promise.prototype.finally": "^3.1.2"
+    "promise.prototype.finally": "^3.1.2",
+    "rxjs": "^7.8.2"
   },
   "devDependencies": {
     "@types/prop-types": "^15.7.3",
