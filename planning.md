@@ -64,7 +64,7 @@ Replace the GitHub fork `freeathome-api` (ZzAve/freeathome-api#feature-abb-struc
 
 ### 2.2 Update Imports (lib/freeAtHomeApi.ts)
 
-- [ ] Replace old imports:
+- [x] Replace old imports:
   ```typescript
   // REMOVE these lines:
   import { BroadcastMessage } from "freeathome-api/dist/lib/BroadcastMessage";
@@ -72,14 +72,14 @@ Replace the GitHub fork `freeathome-api` (ZzAve/freeathome-api#feature-abb-struc
   import { Subscriber } from "freeathome-api/dist/lib/Subscriber";
   ```
 
-- [ ] Add new imports:
+- [x] Add new imports:
   ```typescript
   // ADD these lines:
   import { SystemAccessPoint, WebSocketMessage } from "freeathome-local-api-client";
   import { Subscription } from "rxjs";
   ```
 
-- [ ] Add internal compatibility types:
+- [x] Add internal compatibility types:
   ```typescript
   type BroadcastMessage = {
     type: "error" | "update";
@@ -93,7 +93,7 @@ Replace the GitHub fork `freeathome-api` (ZzAve/freeathome-api#feature-abb-struc
   };
   ```
 
-- [ ] Remove `implements Subscriber` from class declaration
+- [x] Remove `implements Subscriber` from class declaration
 
 ### 2.3 Add New Private Fields
 

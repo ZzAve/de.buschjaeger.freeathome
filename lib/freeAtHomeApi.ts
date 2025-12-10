@@ -1,10 +1,21 @@
 "use strict";
 
 import Homey from "homey";
-import { BroadcastMessage } from "freeathome-api/dist/lib/BroadcastMessage";
-import { ClientConfiguration, SystemAccessPoint } from "freeathome-api";
-import { Subscriber } from "freeathome-api/dist/lib/Subscriber";
+import { SystemAccessPoint, WebSocketMessage } from "freeathome-local-api-client";
+import { Subscription } from "rxjs";
 import { delay, Queue } from "./util";
+
+// Internal compatibility types
+type BroadcastMessage = {
+  type: "error" | "update";
+  result: any;
+};
+
+type ClientConfiguration = {
+  hostname: string;
+  username: string;
+  password: string;
+};
 
 class FreeAtHomeError {
   private message: string;
@@ -27,7 +38,7 @@ export type DeviceRegistrationRequest = {
   onError: (message: string, cause: any) => void;
 };
 
-export class FreeAtHomeApi extends Homey.SimpleClass implements Subscriber {
+export class FreeAtHomeApi extends Homey.SimpleClass {
   private _connected: boolean;
   private systemAccessPoint: SystemAccessPoint;
   private _pollInterval: NodeJS.Timeout;
