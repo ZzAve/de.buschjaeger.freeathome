@@ -49,7 +49,7 @@ const appConfig = (env, argv) => {
           to: distPath,
         },
         {
-          from: "./*.md",
+          from: "./!(*CURRENT_BEHAVIOR*CLAUDE|*planning).md",
           to: distPath,
         },
         {
