@@ -2,8 +2,8 @@
 
 distFolder="./dist/"
 cp -r assets ./${distFolder}
-cp -r drivers ./${distFolder}
-cp -r lib ./${distFolder}
+#cp -r drivers ./${distFolder}
+#cp -r lib ./${distFolder}
 cp -r locales ./${distFolder}
 cp -r settings ./${distFolder}
 cp .homeyignore ./${distFolder}

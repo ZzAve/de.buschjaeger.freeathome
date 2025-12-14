@@ -1,6 +1,7 @@
 const FreeAtHomeDeviceBase = require("../../lib/freeAtHomeDeviceBase");
 const { safe } = require("../../lib/util");
 
+const HEATING_VALUE_DATAPOINT = "odp0003";
 class HeatingDevice extends FreeAtHomeDeviceBase {
   // this method is called when the Device is inited
   onFreeAtHomeInit() {
@@ -19,7 +20,7 @@ class HeatingDevice extends FreeAtHomeDeviceBase {
     // For every 0.5C, add 25. [0,100], step 25
     this.toFreeAtHomeValue(value);
     //
-    await this.handleCapability(+value, {}, "freeathome_heating").then(_ => {
+    await this.handleCapability(+value, {}, "freeathome_heating").then((_) => {
       this.setCapabilityValue("freeathome_heating", value).catch(this.error);
     });
   }
@@ -37,24 +38,53 @@ class HeatingDevice extends FreeAtHomeDeviceBase {
   }
 
   onPollCallback(fullDeviceState) {
-    this._updateState(safe(fullDeviceState).deviceState);
+    this._updateState(fullDeviceState);
   }
 
   onUpdateCallback(changedState) {
-    this._updateState(safe(changedState).deviceState);
+    this._handleUpdate(changedState);
   }
 
-  _updateState(deviceState) {
-    const data = deviceState.channels[this.deviceChannel].datapoints;
-
-    const freeAtHomeHeating = data["odp0003"];
-
-    if ("value" in freeAtHomeHeating) {
-      this.setCapabilitySafely(
-        this.toHomeyValue(freeAtHomeHeating.value),
-        "freeathome_heating"
-      );
+  /**
+   *
+   * @param deviceUpdate {FreeAtHomeDeviceUpdate}
+   * @private
+   */
+  _handleUpdate(deviceUpdate) {
+    // validate right device + channel
+    if (
+      deviceUpdate.deviceId !== this.deviceId ||
+      deviceUpdate.channel !== this.deviceChannel
+    ) {
+      return;
     }
+
+    // map datapoint
+    if (deviceUpdate.datapoint === HEATING_VALUE_DATAPOINT) {
+      this._updateHeatingValue(deviceUpdate.value);
+    }
+  }
+
+  /**
+   *
+   * @param deviceState {FreeAtHomeDeviceState}
+   * @private
+   */
+  _updateState(deviceState) {
+    const channel = deviceState.channels[this.deviceChannel];
+    const data = channel ? channel.outputs : {};
+
+    const freeAtHomeHeating = data[HEATING_VALUE_DATAPOINT];
+    if ("value" in freeAtHomeHeating) {
+      this._updateHeatingValue(freeAtHomeHeating.value);
+    }
+  }
+
+  _updateHeatingValue(freeAtHomeHeating) {
+    this.setCapabilitySafely(
+      this.toHomeyValue(freeAtHomeHeating),
+      "freeathome_heating"
+    );
   }
 
   onErrorCallback(message, cause) {

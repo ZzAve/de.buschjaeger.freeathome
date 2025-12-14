@@ -1,5 +1,7 @@
-const { safe } = require("../../lib/util");
 const FreeAtHomeDeviceBase = require("../../lib/freeAtHomeDeviceBase");
+
+const MOVING_DIRECTION_DATAPOINT = "odp0000";
+const LOCATION_INDICATION_DATAPOINT = "odp0001";
 
 class Blind extends FreeAtHomeDeviceBase {
   // this method is called when the Device is inited
@@ -79,12 +81,20 @@ class Blind extends FreeAtHomeDeviceBase {
     }
   }
 
+  /**
+   *
+   * @param fullDeviceState {FreeAtHomeDeviceState}
+   */
   onPollCallback(fullDeviceState) {
-    this._updateState(safe(fullDeviceState).deviceState);
+    this._updateState(fullDeviceState);
   }
 
+  /**
+   *
+   * @param changedState {FreeAtHomeDeviceUpdate}
+   */
   onUpdateCallback(changedState) {
-    this._updateState(safe(changedState).deviceState);
+    this._handleUpdate(changedState);
   }
 
   toFreeAtHomeDirection(homeyDirection) {
@@ -110,8 +120,38 @@ class Blind extends FreeAtHomeDeviceBase {
     }
   }
 
+  /**
+   *
+   * @param deviceUpdate {FreeAtHomeDeviceUpdate}
+   * @private
+   */
+  _handleUpdate(deviceUpdate) {
+    // validate right device + channel
+    if (
+      deviceUpdate.deviceId !== this.deviceId ||
+      deviceUpdate.channel !== this.deviceChannel
+    ) {
+      return;
+    }
+
+    // map datapoint
+    if (deviceUpdate.datapoint === MOVING_DIRECTION_DATAPOINT) {
+      this._updateMovingDirection(deviceUpdate.value);
+    }
+
+    if (deviceUpdate.datapoint === LOCATION_INDICATION_DATAPOINT) {
+      this._updateBlindPosition(deviceUpdate.value);
+    }
+  }
+
+  /**
+   *
+   * @param deviceState {FreeAtHomeDeviceState}
+   * @private
+   */
   _updateState(deviceState) {
-    const data = deviceState.channels[this.deviceChannel].datapoints;
+    const channel = deviceState.channels[this.deviceChannel];
+    const data = channel ? channel.outputs : {};
 
     /*
       odp0000 -- pairingid 288 move indication
@@ -119,29 +159,45 @@ class Blind extends FreeAtHomeDeviceBase {
 
       idp0000 -- move in direction (1 is down, 0 is up)
       idp0001 -- stop / start moving in direction (1 is down, 0 is up)
-      idp0002 --  35 location indiccation
-        
+      idp0002 -- 35 location indication
     */
 
-    const movingDirection = data["odp0000"];
-    const locationIndication = data["odp0001"];
-
+    const locationIndication = data[LOCATION_INDICATION_DATAPOINT];
     if ("value" in locationIndication) {
-      const convertedValue = 1.0 - +locationIndication.value / 100.0;
-      this.log(
-        `Setting ${this.id}  windowcoverings_set to ${convertedValue} (derived from ${locationIndication.value})`
-      );
-      this.setCapabilitySafely(convertedValue, "windowcoverings_set");
+      this._updateBlindPosition(locationIndication.value);
     }
 
+    const movingDirection = data[MOVING_DIRECTION_DATAPOINT];
     if ("value" in movingDirection) {
-      const convertedDirection = this.toMovingDirection(movingDirection.value);
-      this.moveDirection = +movingDirection.value;
-      this.log(
-        `Setting ${this.id}  windowcoverings_state to ${convertedDirection} (derived from ${movingDirection.value})`
-      );
-      this.setCapabilitySafely(convertedDirection, "windowcoverings_state");
+      this._updateMovingDirection(movingDirection.value);
     }
+  }
+
+  /**
+   *
+   * @param rawLocationIndication {string}
+   * @private
+   */
+  _updateBlindPosition(rawLocationIndication) {
+    const convertedValue = 1 - +rawLocationIndication / 100;
+    this.log(
+      `Setting ${this.id}  windowcoverings_set to ${convertedValue} (derived from ${rawLocationIndication})`
+    );
+    this.setCapabilitySafely(convertedValue, "windowcoverings_set");
+  }
+
+  /**
+   *
+   * @param rawMovingDirection {string}
+   * @private
+   */
+  _updateMovingDirection(rawMovingDirection) {
+    const convertedDirection = this.toMovingDirection(rawMovingDirection);
+    this.moveDirection = +rawMovingDirection;
+    this.log(
+      `Setting ${this.id} windowcoverings_state to ${convertedDirection} (derived from ${rawMovingDirection})`
+    );
+    this.setCapabilitySafely(convertedDirection, "windowcoverings_state");
   }
 
   onErrorCallback(message, cause) {

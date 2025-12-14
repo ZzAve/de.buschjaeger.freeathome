@@ -1,5 +1,6 @@
 const FreeAtHomeDeviceBase = require("../../lib/freeAtHomeDeviceBase");
-const { safe } = require("../../lib/util");
+
+const ON_OFF_DATAPOINT = "odp0000";
 
 class SwitchDevice extends FreeAtHomeDeviceBase {
   // this method is called when the Device is inited
@@ -10,27 +11,76 @@ class SwitchDevice extends FreeAtHomeDeviceBase {
 
   // this method is called when the Device has requested a state change (turned on or off)
   async onCapabilityOnoff(value, opts) {
-    await this.handleCapability(+value, {}, "onoff").then(_ => {
+    await this.handleCapability(+value, {}, "onoff").then((_) => {
       this.setCapabilityValue("onoff", value).catch(this.error);
     });
   }
 
   onPollCallback(fullDeviceState) {
-    this._updateState(safe(fullDeviceState).deviceState);
+    this._updateState(fullDeviceState);
   }
 
+  /**
+   * Callback for updating device state
+   * Typical shape (websocket level:
+   *
+   *  '00000000-0000-0000-0000-000000000000': {
+   *     datapoints: {
+   *       'ABB700D5DC41/ch0000/odp0000': '1',
+   *       'ABB700D5DC41/ch0006/idp0000': '1'
+   *     },
+   *     parameters: {},
+   *     devices: {},
+   *     devicesAdded: [],
+   *     devicesRemoved: [],
+   *     scenesTriggered: {}
+   *   }
+   *
+   *
+   * @param changedState {FreeAtHomeDeviceUpdate}
+   * @returns {void}
+   */
   onUpdateCallback(changedState) {
-    this._updateState(safe(changedState).deviceState);
+    this._handleUpdate(changedState);
   }
 
-  _updateState(deviceState) {
-    const data = deviceState.channels[this.deviceChannel].datapoints;
-
-    const onoff = data["odp0000"];
-
-    if ("value" in onoff) {
-      this.setCapabilitySafely(!!+onoff.value, "onoff");
+  /**
+   *
+   * @param deviceUpdate {FreeAtHomeDeviceUpdate}
+   * @private
+   */
+  _handleUpdate(deviceUpdate) {
+    // validate right device + channel
+    if (
+      deviceUpdate.deviceId !== this.deviceId ||
+      deviceUpdate.channel !== this.deviceChannel
+    ) {
+      return;
     }
+
+    // map datapoint
+    if (deviceUpdate.datapoint === ON_OFF_DATAPOINT) {
+      this._updateOnOffValue(deviceUpdate.value);
+    }
+  }
+
+  /**
+   *
+   * @param deviceState {FreeAtHomeDeviceState}
+   * @private
+   */
+  _updateState(deviceState) {
+    const channel = deviceState.channels[this.deviceChannel];
+    const outputs = channel.outputs;
+
+    const onoff = outputs[ON_OFF_DATAPOINT];
+    if ("value" in onoff) {
+      this._updateOnOffValue(onoff.value);
+    }
+  }
+
+  _updateOnOffValue(onoff) {
+    this.setCapabilitySafely(!!+onoff, "onoff");
   }
 
   onErrorCallback(message, cause) {

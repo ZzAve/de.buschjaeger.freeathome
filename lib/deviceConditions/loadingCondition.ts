@@ -1,5 +1,9 @@
 import Homey from "homey";
-import { FreeAtHomeDevice } from "../freeAtHomeDevice";
+import {
+  FreeAtHomeDevice,
+  FreeAtHomeDeviceState,
+  FreeAtHomeDeviceUpdate,
+} from "../freeAtHomeDevice";
 import { FreeAtHomeDeviceCondition } from "./freeAtHomeDeviceCondition";
 import { FreeAtHomeDeviceConditionBehaviour } from "./freeAtHomeDeviceConditionBehaviour";
 
@@ -14,7 +18,7 @@ export class LoadingCondition implements FreeAtHomeDeviceConditionBehaviour {
 
   async onError(
     device: FreeAtHomeDevice,
-    message: String,
+    message: string,
     cause: any
   ): Promise<void> {
     device.log(message, cause);
@@ -22,12 +26,12 @@ export class LoadingCondition implements FreeAtHomeDeviceConditionBehaviour {
     await device.onError(message, cause);
   }
 
-  async onUpdate(device: FreeAtHomeDevice, deviceUpdate): Promise<void> {
+  async onUpdate(device: FreeAtHomeDevice, deviceUpdate: FreeAtHomeDeviceUpdate): Promise<void> {
     await device.transitionToDeviceCondition(FreeAtHomeDeviceCondition.ACTIVE);
-    await device.onUpdate({ device });
+    await device.onUpdate(deviceUpdate);
   }
 
-  async onPoll(device: FreeAtHomeDevice, fullDeviceState): Promise<void> {
+  async onPoll(device: FreeAtHomeDevice, fullDeviceState: FreeAtHomeDeviceState): Promise<void> {
     await device.transitionToDeviceCondition(FreeAtHomeDeviceCondition.ACTIVE);
     await device.onPoll(fullDeviceState);
   }
