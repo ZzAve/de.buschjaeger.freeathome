@@ -118,6 +118,14 @@ export class FreeAtHomeApi extends Homey.SimpleClass {
     this.queuedRegistration = new Queue();
   }
 
+  /**
+   * Sets the client configuration for connecting to the Free@Home SysAp.
+   *
+   * @param config - Configuration object containing hostname, username, password, and sysApUuid
+   * @remarks
+   * The sysApUuid is discovered during the first connection if not provided.
+   * Password is obfuscated in logs for security.
+   */
   setClientConfiguration(config: PotentialClientConfiguration) {
     this.config = {
       hostname: config.hostname ?? "",
@@ -166,6 +174,15 @@ export class FreeAtHomeApi extends Homey.SimpleClass {
     }
   }
 
+  /**
+   * Sets up the WebSocket listener for receiving real-time updates from the SysAp.
+   *
+   * @param reset - If true, disconnects existing listener before creating new one
+   * @remarks
+   * Uses RxJS Observable pattern from freeathome-local-api-client.
+   * Subscribes to WebSocket messages and connects with certificate verification disabled
+   * for local network use.
+   */
   private setupWebSocketListener(reset: boolean = false) {
     if (reset === true) {
       this.disconnectWebSocketListener();
@@ -182,6 +199,13 @@ export class FreeAtHomeApi extends Homey.SimpleClass {
     this.systemAccessPoint.connectWebSocket(false);
   }
 
+  /**
+   * Disconnects the WebSocket listener and unsubscribes from the RxJS subscription.
+   *
+   * @remarks
+   * Called during stop() and when resetting the WebSocket connection.
+   * Handles cleanup of both the WebSocket connection and the Observable subscription.
+   */
   private disconnectWebSocketListener() {
     try {
       this.systemAccessPoint.disconnectWebSocket();
@@ -267,6 +291,15 @@ export class FreeAtHomeApi extends Homey.SimpleClass {
     this.log("FreeAtHomeApi has been inited");
   }
 
+  /**
+   * Handles incoming WebSocket messages from the SysAp.
+   *
+   * @param message - WebSocketMessage from freeathome-local-api-client
+   * @remarks
+   * This is the main entry point for real-time device updates from the SysAp.
+   * On the first message, marks the connection as active and triggers the connected event.
+   * Processes device registrations and routes updates to registered devices.
+   */
   private async handleWebSocketMessage(message: WebSocketMessage) {
     try {
       if (this.messageCount === 0) {
@@ -292,6 +325,19 @@ export class FreeAtHomeApi extends Homey.SimpleClass {
     }
   }
 
+  /**
+   * Transforms and processes WebSocket messages from the new API format.
+   *
+   * @param message - WebSocketMessage from freeathome-local-api-client
+   * @remarks
+   * Message transformation:
+   * - Extracts device updates from message[sysApUuid].datapoints
+   * - Datapoint keys are formatted as "deviceId/channel/datapoint"
+   * - Splits keys and creates FreeAtHomeDeviceUpdate objects
+   * - Routes updates to registered devices via _onUpdate()
+   *
+   * This maintains compatibility with the existing device callback structure.
+   */
   private async processMessage(message: WebSocketMessage) {
     const deviceMessage = message[this.config.sysApUuid];
 
