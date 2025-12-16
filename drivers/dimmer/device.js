@@ -2,6 +2,9 @@
 const { safe } = require("../../lib/util");
 const FreeAtHomeDeviceBase = require("../../lib/freeAtHomeDeviceBase");
 
+const ON_OFF_DATAPOINT = "odp0000";
+const DIM_DATAPOINT = "odp0001";
+
 class Dimmer extends FreeAtHomeDeviceBase {
   // this method is called when the Device is inited
   onFreeAtHomeInit() {
@@ -56,26 +59,62 @@ class Dimmer extends FreeAtHomeDeviceBase {
   }
 
   onPollCallback(fullDeviceState) {
-    this._updateState(safe(fullDeviceState).deviceState);
+    this._updateState(fullDeviceState);
   }
 
   onUpdateCallback(changedState) {
-    this._updateState(safe(changedState).deviceState);
+    this._handleUpdate(changedState);
   }
 
+  /**
+   *
+   * @param changedState {FreeAtHomeDeviceUpdate}
+   * @private
+   */
+  _handleUpdate(deviceUpdate) {
+    // validate right device + channel
+    if (
+      deviceUpdate.deviceId !== this.deviceId ||
+      deviceUpdate.channel !== this.deviceChannel
+    ) {
+      return;
+    }
+
+    if (deviceUpdate.datapoint === ON_OFF_DATAPOINT) {
+      this._updateOnOfValue(deviceUpdate.value);
+    }
+
+    if (deviceUpdate.datapoint === DIM_DATAPOINT) {
+      this._updateDimValue(deviceUpdate.value);
+    }
+  }
+
+  /**
+   *
+   * @param deviceState {FreeAtHomeDeviceState}
+   * @private
+   */
   _updateState(deviceState) {
-    const data = deviceState.channels[this.deviceChannel].datapoints;
+    const channel = deviceState.channels[this.deviceChannel];
+    const data = channel ? channel.outputs : {};
 
-    const onoff = data["odp0000"];
-    const dim = data["odp0001"];
-
+    const onoff = data[ON_OFF_DATAPOINT];
     if ("value" in onoff) {
-      this.setCapabilitySafely(!!+onoff.value, "onoff");
+      this._updateOnOfValue(onoff.value);
     }
 
+    const dim = data[DIM_DATAPOINT];
     if ("value" in dim) {
-      this.setCapabilitySafely(+dim.value / 100.0, "dim");
+      this._updateDimValue(dim.value);
     }
+  }
+
+  _updateDimValue(dim) {
+    this.setCapabilitySafely(+dim / 100, "dim");
+  }
+
+  _updateOnOfValue(onoff) {
+    this.setCapabilitySafely(!!+onoff, "onoff");
   }
 
   onErrorCallback(message, cause) {

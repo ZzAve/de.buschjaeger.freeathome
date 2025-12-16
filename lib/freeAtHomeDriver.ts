@@ -1,9 +1,14 @@
 import Homey from "homey";
 import { FreeAtHomeApi } from "./freeAtHomeApi";
+import {
+  FreeAtHomeDeviceData,
+  FreeAtHomeDeviceState,
+  FreeAtHomeDeviceStates,
+} from "./freeAtHomeDevice";
 
 // import {freeAtHomeIcons} from "./icons";
 
-class FreeAtHomeDriver extends Homey.Driver {
+abstract class FreeAtHomeDriver extends Homey.Driver {
   private api: FreeAtHomeApi;
   private devicesPromise: Promise<any[]>;
 
@@ -106,31 +111,28 @@ class FreeAtHomeDriver extends Homey.Driver {
     });
   }
 
-  getFunctionId() {
-    // overload me
-  }
+  abstract getFunctionId(): string
 
-  private async discoverDevicesByFunction(functionId) {
+
+  private async discoverDevicesByFunction(functionId: string) {
     this.log(`Getting all devices of functionId ${functionId}`);
     return await this.getDevicesByFunctionId(functionId);
   }
 
   /**
    *
-   * @returns {Promise<{data: {channel: string, id: string, deviceId: string}, name: *}[]>}
-   * @param functionId
    */
-  async getDevicesByFunctionId(functionId) {
+  async getDevicesByFunctionId(functionId: string): Promise<{ data: { channel: string; id: string; deviceId: string; }; name: any; }[]> {
     this.log(this.api);
-    const allDevices: Map<string, any> = await this.api.getAllDevices();
+    const allDevices: FreeAtHomeDeviceStates = await this.api.getAllDevices();
 
     let devices = [];
     // Extract from each channel
-    Object.values(allDevices).forEach(device => {
-      Object.entries(device.channels).forEach(([key, channel]) => {
+    Object.entries(allDevices).forEach(([deviceId, device]) => {
+      Object.entries(device.channels).forEach(([channelId, channel]) => {
         // @ts-ignore
         if (channel.functionId === functionId) {
-          devices.push(this.internalize(device, key));
+          devices.push(this.internalize(deviceId, device, channelId));
         }
       });
     });
@@ -139,18 +141,18 @@ class FreeAtHomeDriver extends Homey.Driver {
     return devices;
   }
 
-  private internalize(externalDevice, channel) {
-    this.log(`Internalizing (channel ${channel}`, externalDevice);
+  private internalize(deviceId: string, externalDevice: FreeAtHomeDeviceState, channel: string): { data: FreeAtHomeDeviceData; name: string; } {
+    this.log(`Internalizing (deviceId ${deviceId}, channel ${channel}`, externalDevice);
 
     return {
       name: externalDevice.channels[channel]["displayName"],
       // 'name': `${externalDevice.serialNumber}-${channel}`,
       data: {
-        id: `${externalDevice.serialNumber}-${channel}`,
-        deviceId: externalDevice.serialNumber,
-        serialNumber: externalDevice.serialNumber,
+        id: `${deviceId}-${channel}`,
+        deviceId: deviceId,
+        serialNumber: deviceId,
         channel: channel,
-        functionId: externalDevice.channels[channel].functionId,
+        functionId: externalDevice.channels[channel].functionID,
         floor: externalDevice.channels[channel]["floor"],
         room: externalDevice.channels[channel].room
       }

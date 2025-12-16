@@ -1,13 +1,21 @@
 import Homey from "homey";
 import { capabilityMapping, delay } from "./util";
-import { FreeAtHomeDevice } from "./freeAtHomeDevice";
+import {
+  FreeAtHomeDevice,
+  FreeAtHomeDeviceData,
+  FreeAtHomeDeviceState,
+  FreeAtHomeDeviceUpdate,
+} from "./freeAtHomeDevice";
 import { FreeAtHomeDeviceCondition } from "./deviceConditions/freeAtHomeDeviceCondition";
 import { FreeAtHomeDeviceConditionBehaviour } from "./deviceConditions/freeAtHomeDeviceConditionBehaviour";
 import { ActiveCondition } from "./deviceConditions/activeCondition";
 import { ErrorCondition } from "./deviceConditions/errorCondition";
 import { LoadingCondition } from "./deviceConditions/loadingCondition";
 import { StartingCondition } from "./deviceConditions/startingCondition";
-import { DeviceRegistrationRequest, FreeAtHomeApi } from "./freeAtHomeApi";
+import {
+  DeviceRegistrationRequest,
+  FreeAtHomeApi,
+} from "./freeAtHomeApi";
 
 const INFO_LOG = "info_log";
 const DEBUG_LOG = "debug_log";
@@ -33,7 +41,7 @@ abstract class FreeAtHomeDeviceBase extends Homey.Device
     this.debugLog = settings[DEBUG_LOG] === true;
     this.infoLog = settings[INFO_LOG] === true;
 
-    const { deviceId: serialNumber, channel, id } = this.getData();
+    const { deviceId: serialNumber, channel, id } = this.getData<FreeAtHomeDeviceData>();
     this.deviceId = serialNumber;
     this.deviceChannel = channel;
     this.id = id;
@@ -96,15 +104,15 @@ abstract class FreeAtHomeDeviceBase extends Homey.Device
     }
   }
 
-  abstract onPollCallback(fullDeviceState);
+  abstract onPollCallback(fullDeviceState: FreeAtHomeDeviceState);
 
-  async onPoll(fullDeviceState) {
+  async onPoll(fullDeviceState: FreeAtHomeDeviceState) {
     await this._deviceCondition.onPoll(this, fullDeviceState);
   }
 
-  abstract onUpdateCallback(deviceUpdate);
+  abstract onUpdateCallback(deviceUpdate: FreeAtHomeDeviceUpdate);
 
-  async onUpdate(deviceUpdate) {
+  async onUpdate(deviceUpdate: FreeAtHomeDeviceUpdate) {
     await this._deviceCondition.onUpdate(this, deviceUpdate);
   }
 

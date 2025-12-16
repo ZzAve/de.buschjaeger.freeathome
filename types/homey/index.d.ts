@@ -1,11 +1,13 @@
 import { EventEmitter } from "events";
-import { string } from "prop-types";
-import "./test";
 
+// tslint:disable: variable-name
 declare module "homey" {
     type EventHandler<T> = (param: T) => void;
 
     export function __(name: string, args?: { [key: string]: string | undefined } | undefined): string;
+
+    // Global app instance
+    export const app: any;
 
     // https://apps.developer.athom.com/tutorial-App%20Store.html
     export const env: {
@@ -61,6 +63,11 @@ declare module "homey" {
 
     export class Driver {
         public onInit(): void | Promise<void>;
+        // Logging methods
+        public log(...args: any[]): void;
+        public error(...args: any[]): void;
+        public warn(...args: any[]): void;
+        public debug(...args: any[]): void;
     }
 
     export class CronTask extends EventEmitter {
@@ -90,29 +97,66 @@ declare module "homey" {
         public onDeleted(): void | Promise<void>;
 
         protected getCapabilities(): string[];
+        protected getSettings(): Promise<any>;
+        protected setSettings(settings: any): Promise<void>;
 
         protected getStoreValue<T extends number | string | boolean>(key: string): T;
         protected setStoreValue<T extends number | string | boolean>(key: string, val: T): Promise<void>;
 
         protected getClass(): string;
         protected getName(): string;
-        protected getAvailable(): boolean;
-        protected setAvailable(): Promise<void>;
-        protected setUnavailable(message?: string): Promise<void>;
-        protected setWarning(message: string): Promise<void>;
-        protected unsetWarning(): Promise<void>;
+        public getAvailable(): boolean;
+        public setAvailable(): Promise<void>;
+        public setUnavailable(message?: string): Promise<void>;
+        public setWarning(message: string): Promise<void>;
+        public unsetWarning(): Promise<void>;
         protected getData<T>(): T;
 
         protected getCapabilityValue<T>(id: string): T;
         protected setCapabilityValue<T>(id: string, val: T): Promise<void>;
         protected registerCapabilityListener<V, O = {}>(capability: string, callback: (value: V, opts: O) => Promise<void>): Promise<void>;
+
+        // Logging methods
+        public log(...args: any[]): void;
+        public error(...args: any[]): void;
+        public warn(...args: any[]): void;
+        public debug(...args: any[]): void;
     }
 
-    export class SimpleClass{
-        public log(): void | Promise<void>;
-        public error(): void | Promise<void>;
+    export class SimpleClass extends EventEmitter {
+        public log(...args: any[]): void;
+        public error(...args: any[]): void;
+        public warn(...args: any[]): void;
     }
     export class App extends SimpleClass{
         public onInit(): void | Promise<void>;
     }
+  export class MockCronTask extends CronTask implements IMockEventHandler {
+    public _args: any[];
+
+    public date: Date;
+    public handBack: any;
+
+    public callEventHandler: (evt: string) => any;
+
+    public _evt: {
+      [key: string]: (...args: any[]) => any;
+    };
+  }
+
+  export interface IMockEventHandler {
+    _args: any[];
+    callEventHandler: (evt: string) => any;
+
+    _evt: {
+      [key: string]: (...args: any[]) => any;
+    };
+  }
+
+  export module ManagerCron {
+    export const _tasks: {
+      schedule: MockCronTask,
+      cleanup: MockCronTask,
+    };
+  }
 }

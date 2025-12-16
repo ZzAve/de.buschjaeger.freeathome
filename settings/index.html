@@ -22,25 +22,29 @@
                 <div style="height:8px" class="panel"></div>
                 <div id="tab1" class="panel" style="display: none;">
 
-                    <fieldset>
-                        <legend data-i18n="settings.tab1.header">My Settings</legend>
+                    <fieldset class="homey-form-fieldset">
+                        <legend class="homey-form-legend">My Settings</legend>
 
-                        <div class="field row">
+                        <div class="homey-form-group">
                             <label for="api-host">Free@home-api host</label>
                             <input id="api-host" type="text" value="" placeholder="http://192.168.2.200" />
                         </div>
 
-                        <div class="field row">
+                        <div class="homey-form-group">
                             <label for="api-username">Free@home-api username</label>
                             <input id="api-username" type="text" value="" placeholder="username" />
                         </div>
-                        <div class="field row">
+                        <div class="homey-form-group">
                             <label for="api-password">Free@home-api password</label>
                             <input id="api-password" type="password" value=""  />
                         </div>
+                        <div class="homey-form-group">
+                            <label for="api-uuid">Free@home sysap UUID</label>
+                            <input id="api-uuid" type="text" placeholder="00000000-0000-0000-0000-000000000000"  />
+                        </div>
                     </fieldset>
 
-                    <button id="save" class="right">Save changes</button>
+                    <button id="save" class="homey-button-primary-full">Save changes</button>
                 </div>
                 <div id="tab2" class="panel" style="display: none;">
                     <div class="setting">
@@ -67,12 +71,14 @@
             const apiHostElement = document.getElementById('api-host');
             const apiUsernameElement = document.getElementById('api-username');
             const apiPasswordElement = document.getElementById('api-password');
+            const apiUUIDElement = document.getElementById('api-uuid');
 
             Homey.get('sysap', function( err, data){
               if( err ) return Homey.alert( err );
               apiHostElement.value = data.host;
               apiUsernameElement.value = data.username;
               apiPasswordElement.value = data.password;
+              apiUUIDElement.value = data.sysApUuid;
             });
 
             const saveElement = document.getElementById('save');
@@ -80,11 +86,13 @@
                 const sysapData = {
                   host: apiHostElement.value,
                   username: apiUsernameElement.value,
-                  password: apiPasswordElement.value
+                  password: apiPasswordElement.value,
+                  sysApUuid: apiUUIDElement.value
                 };
 
                 Homey.set('sysap', sysapData, function( err ){
-                  if( err ) return Homey.alert( err );
+                  if( err ) return Homey.alert( err )
+                  else console.log('Saved config', sysapData);
                 });
 	        });
         }

@@ -1,4 +1,3 @@
-[![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
 
 # Bush Jeager Free@Home
 
@@ -18,16 +17,24 @@ with the capability of turning the actor 'on' and 'off'.
 
 For each device the name will be used as it is configured in the SysAp.
 
-## Using functionId from SysAp
-There is an MR in freeathome-api to expose a channels functionId. This allows to not have to parse deviceIds and 
-having to update those every few months. I'm planning to start using this soon. 
+## Library Migration (v2.x)
+
+This app now uses the official `freeathome-local-api-client` npm package (v1.9.0+) instead of the previous GitHub fork.
+
+**Key changes:**
+- Switched from callback-based to RxJS Observable pattern for real-time updates
+- Direct connection to Free@Home SysAp without intermediate services
+- Automatic sysApUuid discovery on first connection
+- Improved WebSocket connection management with automatic reconnection
+
+No user action required - existing devices will continue to work after the update. 
 
 ### Polling
 
 On startup, a `device` registers itself with Freeathome, which manages connection to the access point.
 Every update from SysAp (all devices, including the ones used by consumer) is processed in real time and fed to the device is applicable
 
-To have a fallback, every `60 seconds` (static for now) a full state sync is done (syncing Homey to state in Sysap (lead))
+To have a fallback, every `5 minutes` (static for now) a full state sync is done (syncing Homey to state in Sysap (lead))
 
 ## Future plans
 I have quite a list of things that I want to do (not necessarily in order):

@@ -1,5 +1,9 @@
 import Homey from "homey";
-import { FreeAtHomeDevice } from "../freeAtHomeDevice";
+import {
+  FreeAtHomeDevice,
+  FreeAtHomeDeviceState,
+  FreeAtHomeDeviceUpdate,
+} from "../freeAtHomeDevice";
 import { FreeAtHomeDeviceCondition } from "./freeAtHomeDeviceCondition";
 import { FreeAtHomeDeviceConditionBehaviour } from "./freeAtHomeDeviceConditionBehaviour";
 import { DeviceRegistrationRequest } from "../freeAtHomeApi";
@@ -10,7 +14,7 @@ export class StartingCondition implements FreeAtHomeDeviceConditionBehaviour {
   }
 
   async enterState(device: FreeAtHomeDevice): Promise<void> {
-    // When entering the starting state, the goal is to register with freeAtHome, and than go in loading state
+    // When entering the starting state, the goal is to register with freeAtHome, and then go in loading state
     await device.setUnavailable(Homey.__("starting"));
     await device.unsetWarning();
 
@@ -45,24 +49,24 @@ export class StartingCondition implements FreeAtHomeDeviceConditionBehaviour {
 
   async onError(
     device: FreeAtHomeDevice,
-    message: String,
+    message: string,
     cause: any
   ): Promise<void> {
-    device.error("Error while in starting state:", message);
+    device.onError("Error while in starting state:", message);
     await device.transitionToDeviceCondition(FreeAtHomeDeviceCondition.ERROR);
-    await device.onError(message, cause);
+    device.onError(message, cause);
   }
 
-  async onUpdate(device: FreeAtHomeDevice, deviceUpdate): Promise<void> {
-    device.error(
+  async onUpdate(device: FreeAtHomeDevice, deviceUpdate: FreeAtHomeDeviceUpdate): Promise<void> {
+    device.onError(
       "Received update whilst in Starting state! Transitioning to Active"
     );
     await device.transitionToDeviceCondition(FreeAtHomeDeviceCondition.ACTIVE);
     await device.onUpdate(deviceUpdate);
   }
 
-  async onPoll(device: FreeAtHomeDevice, fullDeviceState): Promise<void> {
-    device.error(
+  async onPoll(device: FreeAtHomeDevice, fullDeviceState: FreeAtHomeDeviceState): Promise<void> {
+    device.onError(
       "Received poll whilst in Starting state! Transitioning to Active"
     );
     await device.transitionToDeviceCondition(FreeAtHomeDeviceCondition.ACTIVE);

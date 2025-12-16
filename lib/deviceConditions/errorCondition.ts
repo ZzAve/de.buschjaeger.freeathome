@@ -1,5 +1,9 @@
 import Homey from "homey";
-import { FreeAtHomeDevice } from "../freeAtHomeDevice";
+import {
+  FreeAtHomeDevice,
+  FreeAtHomeDeviceState,
+  FreeAtHomeDeviceUpdate,
+} from "../freeAtHomeDevice";
 import { FreeAtHomeDeviceCondition } from "./freeAtHomeDeviceCondition";
 import { FreeAtHomeDeviceConditionBehaviour } from "./freeAtHomeDeviceConditionBehaviour";
 
@@ -32,7 +36,7 @@ export class ErrorCondition implements FreeAtHomeDeviceConditionBehaviour {
     device.error(`An error occurred whilst in Error state : ${message}`, cause);
   }
 
-  async onUpdate(device: FreeAtHomeDevice, deviceUpdate): Promise<void> {
+  async onUpdate(device: FreeAtHomeDevice, deviceUpdate: FreeAtHomeDeviceUpdate): Promise<void> {
     device.log(
       "A miracle occurred. I received an update after being in an error state. Transitioning to active"
     );
@@ -41,7 +45,7 @@ export class ErrorCondition implements FreeAtHomeDeviceConditionBehaviour {
     await device.onUpdate(deviceUpdate);
   }
 
-  async onPoll(device: FreeAtHomeDevice, fullDeviceState): Promise<void> {
+  async onPoll(device: FreeAtHomeDevice, fullDeviceState: FreeAtHomeDeviceState): Promise<void> {
     device.log(
       "A miracle occurred. I received a poll after being in an error state. Transitioning to active"
     );

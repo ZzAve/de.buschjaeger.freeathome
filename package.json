@@ -5,10 +5,11 @@
   "main": "app.js",
   "dependencies": {
     "fixture-stdout": "^0.2.1",
-    "freeathome-api": "github:ZzAve/freeathome-api#feature-abb-structure",
+    "freeathome-local-api-client": "^1.9.0",
     "fs-extra": "^9.1.0",
     "node-fetch": "^2.6.1",
-    "promise.prototype.finally": "^3.1.2"
+    "promise.prototype.finally": "^3.1.2",
+    "rxjs": "^7.8.2"
   },
   "devDependencies": {
     "@types/prop-types": "^15.7.3",
@@ -17,7 +18,7 @@
     "eslint": "^7.22.0",
     "eslint-config-prettier": "^8.1.0",
     "eslint-plugin-prettier": "^3.3.1",
-    "homey": "^2.12.3",
+    "homey": "2.12.3",
     "husky": "^3.0.9",
     "prettier": "^2.2.1",
     "prettier-eslint": "^12.0.0",
@@ -30,15 +31,16 @@
     "webpack-cli": "^4.5.0"
   },
   "scripts": {
-    "prehomey2": "npm run build && sh prepare.sh && cd dist && npm ci --production && cd ../",
-    "prehomey": "npm run build && sh prepare.sh && cd dist && npm i --production && cd ../",
+    "prehomey2": "npm run build && cd dist && npm ci --production && cd ../",
+    "prehomey": "npm run build:pro && cd dist && npm ci --production && cd ../",
     "clean": "rm -rf dist/",
     "build": "npm run build:dev",
     "build:dev": "webpack --mode=development",
     "build:pro": "webpack --mode=production",
     "yolo": "homey app run -p dist",
+    "yolo:dist": "homey app run",
     "homey:run": "npm run build:dev && homey app run -p dist ",
-    "homey:install": "npm run build:pro && homey app install -p dist ",
+    "homey:install": "homey app install -p dist ",
     "lint": "eslint .",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

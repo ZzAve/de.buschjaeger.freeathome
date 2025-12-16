@@ -21,6 +21,24 @@
     "name": "Julius van Dis",
     "email": "vandis.j@gmail.com"
   },
+  "flow": {
+    "triggers": [
+      {
+        "id": "busch_jaeger_connected",
+        "title": {
+          "en": "Api connection established",
+          "nl": "Api verbinding gemaakt"
+        }
+      },
+      {
+        "id": "busch_jaeger_disconnected",
+        "title": {
+          "en": "Api connection lost",
+          "nl": "Api verbinding verbroken"
+        }
+      }
+    ]
+  },
   "drivers": [
     {
       "pair": [
@@ -46,8 +64,8 @@
         {
           "type": "group",
           "label": {
-            "en": "General settings",
-            "nl": "Algemene instellingen"
+            "en": "Log settings",
+            "nl": "Log instellingen"
           },
           "children": [
             {
@@ -60,7 +78,20 @@
               "value": false,
               "hint": {
                 "en": "Register debug logs for this device. These will show up in the app's settings",
-                "nl": "Wegschrijven van debug logs for dit apparaat. De logs zijn te vinden in de app instelling"
+                "nl": "Wegschrijven van debug logs for dit apparaat. De logs zijn te vinden in de app instellingen"
+              }
+            },
+            {
+              "id": "info_log",
+              "type": "checkbox",
+              "label": {
+                "en": "Info logs",
+                "nl": "Info logs"
+              },
+              "value": false,
+              "hint": {
+                "en": "Register info logs for this device. These will show up in the app's settings",
+                "nl": "Wegschrijven van info logs for dit apparaat. De logs zijn te vinden in de app instellingen"
               }
             }
           ]
@@ -104,8 +135,8 @@
         {
           "type": "group",
           "label": {
-            "en": "General settings",
-            "nl": "Algemene instellingen"
+            "en": "Log settings",
+            "nl": "Log instellingen"
           },
           "children": [
             {
@@ -118,7 +149,20 @@
               "value": false,
               "hint": {
                 "en": "Register debug logs for this device. These will show up in the app's settings",
-                "nl": "Wegschrijven van debug logs for dit apparaat. De logs zijn te vinden in de app instelling"
+                "nl": "Wegschrijven van debug logs for dit apparaat. De logs zijn te vinden in de app instellingen"
+              }
+            },
+            {
+              "id": "info_log",
+              "type": "checkbox",
+              "label": {
+                "en": "Info logs",
+                "nl": "Info logs"
+              },
+              "value": false,
+              "hint": {
+                "en": "Register info logs for this device. These will show up in the app's settings",
+                "nl": "Wegschrijven van info logs for dit apparaat. De logs zijn te vinden in de app instellingen"
               }
             }
           ]
@@ -162,8 +206,8 @@
         {
           "type": "group",
           "label": {
-            "en": "General settings",
-            "nl": "Algemene instellingen"
+            "en": "Log settings",
+            "nl": "Log instellingen"
           },
           "children": [
             {
@@ -176,7 +220,91 @@
               "value": false,
               "hint": {
                 "en": "Register debug logs for this device. These will show up in the app's settings",
-                "nl": "Wegschrijven van debug logs for dit apparaat. De logs zijn te vinden in de app instelling"
+                "nl": "Wegschrijven van debug logs for dit apparaat. De logs zijn te vinden in de app instellingen"
+              }
+            },
+            {
+              "id": "info_log",
+              "type": "checkbox",
+              "label": {
+                "en": "Info logs",
+                "nl": "Info logs"
+              },
+              "value": false,
+              "hint": {
+                "en": "Register info logs for this device. These will show up in the app's settings",
+                "nl": "Wegschrijven van info logs for dit apparaat. De logs zijn te vinden in de app instellingen"
+              }
+            }
+          ]
+        }
+      ],
+      "id": "heating",
+      "name": {
+        "en": "Heating",
+        "nl": "Verwarming"
+      },
+      "class": "heater",
+      "capabilities": [
+        "freeathome_heating"
+      ],
+      "images": {
+        "large": "/drivers/heating/assets/images/large.png",
+        "small": "/drivers/heating/assets/images/small.png"
+      }
+    },
+    {
+      "pair": [
+        {
+          "id": "list_devices",
+          "template": "list_devices",
+          "navigation": {
+            "next": "list_icons"
+          }
+        },
+        {
+          "id": "list_icons",
+          "navigation": {
+            "prev": "list_devices",
+            "next": "freeathome"
+          }
+        },
+        {
+          "id": "freeathome"
+        }
+      ],
+      "settings": [
+        {
+          "type": "group",
+          "label": {
+            "en": "Log settings",
+            "nl": "Log instellingen"
+          },
+          "children": [
+            {
+              "id": "debug_log",
+              "type": "checkbox",
+              "label": {
+                "en": "Debug logs",
+                "nl": "Debug logs"
+              },
+              "value": false,
+              "hint": {
+                "en": "Register debug logs for this device. These will show up in the app's settings",
+                "nl": "Wegschrijven van debug logs for dit apparaat. De logs zijn te vinden in de app instellingen"
+              }
+            },
+            {
+              "id": "info_log",
+              "type": "checkbox",
+              "label": {
+                "en": "Info logs",
+                "nl": "Info logs"
+              },
+              "value": false,
+              "hint": {
+                "en": "Register info logs for this device. These will show up in the app's settings",
+                "nl": "Wegschrijven van info logs for dit apparaat. De logs zijn te vinden in de app instellingen"
               }
             }
           ]
@@ -195,5 +323,20 @@
         "small": "/drivers/switch/assets/images/small.png"
       }
     }
-  ]
+  ],
+  "capabilities": {
+    "freeathome_heating": {
+      "id": "freeathome_heating",
+      "type": "number",
+      "title": {
+        "en": "Heating level"
+      },
+      "uiComponent": "slider",
+      "getable": true,
+      "setable": true,
+      "min": 0,
+      "max": 100,
+      "step": 25
+    }
+  }
 }

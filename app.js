@@ -9,6 +9,9 @@ class FreeAtHome extends Homey.App {
     this.logger = new Logger(); // [logName] [, logLength]
     this._api = undefined;
 
+    Homey.ManagerSettings.on("set", this.onSettingsChanged.bind(this));
+    Homey.ManagerSettings.on("unset", this.onSettingsChanged.bind(this));
+
     process.on("uncaughtException", err => {
       this.error(err, "uncought Exception");
     });
@@ -37,26 +40,40 @@ class FreeAtHome extends Homey.App {
     this._api = new FreeAtHomeApi();
     await this._startSysAp();
 
-    // Restart connection to SysAp on settings change
-    Homey.ManagerSettings.on("set", async setting => {
-      this.log("Settings were updated: ", setting);
-      if (setting === "sysap") await this._api.restart(0, this.apiConfig());
-    });
   }
 
+  onSettingsChanged(setting){
+    this.log("Settings were changed: ", setting);
+    if (setting === "sysap") {
+      this._api.setClientConfiguration(this.apiConfig())
+      this._api.restart(0);
+    }
+  }
+
+
+    /**
+     * Retrieves the configuration settings for the Free@Home API connection
+     * from Homey's settings storage.
+     * @returns {PotentialClientConfiguration} Configuration object containing:
+     *                   - username: SysAp user credentials
+     *                   - password: SysAp password
+     *                   - hostname: SysAp host address
+     *                   - sysApUuid: SysAp UUID
+     */
   apiConfig() {
-    const conf = Homey.ManagerSettings.get(`sysap`) || {};
+    const conf= Homey.ManagerSettings.get(`sysap`) || {};
 
     return {
+      hostname: conf.host,
       username: conf.username,
       password: conf.password,
-      hostname: conf.host
+      sysApUuid: conf.sysApUuid || '00000000-0000-0000-0000-000000000000'
     };
   }
 
   async _startSysApConnection() {
-    let config = this.apiConfig();
-    await this._api.start(config);
+    this._api.setClientConfiguration(this.apiConfig());
+    await this._api.start();
     return this._api;
   }
 
